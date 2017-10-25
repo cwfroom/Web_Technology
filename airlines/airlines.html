@@ -1,0 +1,146 @@
+<html>
+	<head>
+		<title>JSON Airlines</title>
+
+		<script type="text/javascript">
+		function loadJSON(url) {
+			var xmlhttp;
+			if (window.XMLHttpRequest) {
+				// code for IE7+, Firefox, Chrome, Opera, Safari
+				xmlhttp=new XMLHttpRequest();
+			}else {
+				// code for IE6, IE5
+				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+
+			xmlhttp.open("GET",url,false); //synchronous request
+			xmlhttp.send();
+			if (xmlhttp.status == 404){
+				window.alert("JSON file not found");
+				return null;
+			}else{
+				var parsedJson;
+				try{
+					parsedJson = JSON.parse(xmlhttp.responseText);
+				}catch(err){
+					window.alert("Failed to load JSON file");
+					return null;
+				}
+				return parsedJson;
+			}
+
+		}
+
+		function verifyValue(jsonObj){
+			if (jsonObj !== undefined)
+			{
+				return jsonObj;
+			}else{
+				return "";
+			}
+		}
+		
+		function generateHTML(jsonObj){
+			var root = jsonObj.DocumentElement;	
+			var html_text = "<html><head><title>JSON Parse Result</title></head><body>";
+			html_text += "<table border='1'>";
+			
+
+			var headers = jsonObj.Mainline.Table.Header.Data;
+	
+			//Headers
+			html_text += "<tr>";
+			for (var i = 0;i < headers.length;i++){
+				html_text += "<td>" + headers[i] + "</td>";
+			}
+			html_text += "</tr>";
+
+			//Airline Values
+			var airlines = jsonObj.Mainline.Table.Row;
+
+			if (airlines == undefined || airlines.length == 0){
+				window.alert("No airlines found");
+			}else{
+
+				for (var i = 0; i < airlines.length; i++){
+					var airlineIter = airlines[i];
+					html_text += "<tr>";
+					html_text += "<td>" + verifyValue(airlineIter[headers[0]])  + "</td>";
+					html_text += "<td>" + verifyValue(airlineIter[headers[1]]) + "</td>";
+					var hubs = airlineIter[headers[2]].Hub;
+					
+					
+					html_text += "<td>";
+					for (var j = 0; j < hubs.length; j++){
+						if (j==0){
+							html_text += "<li><b>" + hubs[j] + "</b></li>";
+						}else{
+							html_text += "<li>" + hubs[j] + "</li>";
+						}
+						
+					}
+					html_text += "</td>";
+					
+					html_text += "<td>" + verifyValue(airlineIter[headers[3]]) + "</td>";
+					html_text += "<td><a href=\"" + verifyValue(airlineIter[headers[4]]) + "\" >" + verifyValue(airlineIter.HomePage) + "</a></td>";
+					html_text += "<td><img src=\"" + verifyValue(airlineIter[headers[5]]) + "\" width=200 ></td>";
+
+					html_text += "</tr>";
+					}
+				
+				
+					html_text += "</table></body></html>";
+				
+					return html_text;
+			}
+
+			return null;
+			
+			
+		}
+
+		function viewJSON(url){
+			var jsonObj = loadJSON(url);
+
+			if (window.ActiveXObject){ //if IE
+				if (jsonObj.parseError.errorCode!= 0){
+					var err = jsonObj.parseError;
+					//generateError(jsonObj);
+					hWin = window.open("",	"Error","height=400,width=1300");
+					hWin.document.write(html_text);
+				}else{					
+					var html_text = generateHTML(jsonObj);
+					popup = window.open("",	"Airlines","height=768,width=1024");
+					popup.document.write("Here");
+				}
+
+			}else{
+				if (jsonObj != null){
+					html_text = generateHTML(jsonObj);
+					if (html_text != null){
+						hWin = window.open("",	"Airlines",	"height=768,width=1024");
+						hWin.document.write(html_text);	
+					}
+				}
+			}	
+		
+
+		}
+
+
+		</script>
+
+
+	</head>
+
+	<body style="text-align: center;">
+		<h1>Enter URL for Airlines List JSON File</h1>
+		<form name="iform" method="POST" id="location">
+			<input type="text" name="URL" maxlength="255" size="100" value="airlinelist.json" autocomplete="off">
+			<div style="height: 50px"></div>
+			<input type="button" name="submit" value="Submit Query" onclick="viewJSON(URL.value)">
+		</form>
+
+	</body>
+
+</html>
