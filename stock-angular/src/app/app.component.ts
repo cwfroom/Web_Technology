@@ -1,4 +1,8 @@
 import { Component } from '@angular/core';
+import {FormControl} from '@angular/forms';
+
+
+
 
 @Component({
   selector: 'app-root',
@@ -7,4 +11,15 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'app';
+  myControl: FormControl = new FormControl();
+
+    options = [
+      'One',
+      'Two',
+      'Three'
+     ];
+}
+
+function haha() {
+  console.log('haha');
 }
