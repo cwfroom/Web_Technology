@@ -37,92 +37,61 @@
       display:inline-block;
     }
 
+    .warning-text {
+      color: #F00;
+    }
 
   </style>
 
   <script type="text/javascript">
+            var serverURL = window.location.href;
+
               angular
              .module('stockSearch', ['ngMaterial'])
              .controller('autoCompleteController', autoCompleteController);
  
-          function autoCompleteController ($timeout, $q, $log) {
+          function autoCompleteController ($timeout, $q, $log,$scope, $http) {
              var self = this;
              self.simulateQuery = false;
              self.isDisabled    = false;
-             
-             // list of states to be displayed
-             self.states        = loadStates();
+
              self.querySearch   = querySearch;
              self.selectedItemChange = selectedItemChange;
              self.searchTextChange   = searchTextChange;
-             self.newState = newState;
-             
-             function newState(state) {
-                alert("This functionality is yet to be implemented!");
-             }
-             
+
              function querySearch (query) {
-                var results = query ? self.states.filter( createFilterFor(query) ) :
-                   self.states, deferred;
-                   
-                if (self.simulateQuery) {
-                   deferred = $q.defer();
-                      
-                   $timeout(function () { 
-                      deferred.resolve( results ); 
-                   }, 
-                   Math.random() * 1000, false);
-                   return deferred.promise;
-                } else {
-                   return results;
-                }
+                //if (filterSpace(query)){
+                  var deferred = $q.defer();
+
+                  var queryURL = serverURL + 'autocomplete/' + query;
+                  $log.info(queryURL);
+                  $http.get(queryURL).success(
+                    function(data){
+                      deferred.resolve(data);
+                    }
+                  );
+
+                  return deferred.promise;
+              //}
              }
-             
+
              function searchTextChange(text) {
-                $log.info('Text changed to ' + text);
+               
              }
              
              function selectedItemChange(item) {
                 $log.info('Item changed to ' + JSON.stringify(item));
              }
-             
-             //build list of states as map of key-value pairs
-             function loadStates() {
-                var allStates = 'Alabama, Alaska, Arizona, Arkansas, California, Colorado, Connecticut, Delaware,\
-                   Florida, Georgia, Hawaii, Idaho, Illinois, Indiana, Iowa, Kansas, Kentucky, Louisiana,\
-                   Maine, Maryland, Massachusetts, Michigan, Minnesota, Mississippi, Missouri, Montana,\
-                   Nebraska, Nevada, New Hampshire, New Jersey, New Mexico, New York, North Carolina,\
-                   North Dakota, Ohio, Oklahoma, Oregon, Pennsylvania, Rhode Island, South Carolina,\
-                   South Dakota, Tennessee, Texas, Utah, Vermont, Virginia, Washington, West Virginia,\
-                   Wisconsin, Wyoming';
-                   
-                return allStates.split(/, +/g).map( function (state) {
-                   return {
-                      value: state.toLowerCase(),
-                      display: state
-                   };
-                });
-             }
-             
-             //filter function for search query
-             function createFilterFor(query) {
-                var lowercaseQuery = angular.lowercase(query);
-                return function filterFn(state) {
-                   return (state.value.indexOf(lowercaseQuery) === 0);
-                };
+
+             function filterSpace(text){
+                if (text.trim() === ''){
+                  return false;
+                }else{
+                  return true;
+                }
              }
 
           }  
-
-    $( document ).ready(function() {
-     bindSymbolText();
-    });
-
-    function bindSymbolText(){
-      $("#symbol-text").on("change paste keyup",function(){
-          console.log($(this).val());
-      });
-    }
 
   </script>
 
@@ -152,9 +121,11 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                        md-search-text = "ctrl.searchText"
                        md-selected-item-change = "ctrl.selectedItemChange(item)"
                        md-items = "item in ctrl.querySearch(ctrl.searchText)"
-                       md-item-text = "item.display"
-                       md-min-length = "0"
-                       placeholder = "eg. AAPL">
+                       md-item-text = "item.value"
+                       md-min-length = "1"
+                       placeholder = "eg. AAPL"
+                       ng-blur = "ctrl.onBlur"
+                       >
                        
                        <md-item-template>
                           <span md-highlight-text = "ctrl.searchText"
@@ -162,13 +133,16 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                        </md-item-template>
                        
                        <md-not-found>
+                          <!--
                           No states matching "{{ctrl.searchText}}" were found.
                           <a ng-click = "ctrl.newState(ctrl.searchText)">Create a new one!</a>
-                       </md-not-found>
+                            -->
+                        </md-not-found>
                     </md-autocomplete>
-
                  </form>             
  
+                 <div class='warning-text'>Please enter a stock ticker symbol.</div>
+
               </div>
               <div class="col-sm-3"><button type="button" class="btn btn-primary disabled" id="quote-button"><span class="glyphicon glyphicon-search"></span> Get Quote</button>
                     <button type="button" class="btn btn-raised btn-default" id="clear-button"><span class="glyphicon glyphicon-refresh"></span> Clear</button>

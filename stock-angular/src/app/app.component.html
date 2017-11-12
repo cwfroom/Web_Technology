@@ -4,7 +4,7 @@
         <div class="form-group">
               <div class="col-sm-3 prompt-text">Enter Stocker Ticker Symbol:*</div>
               <div class="col-sm-6">
-                    <input type="text" class="form-control" id="symbol-text" placeholder="e.g. AAPL" matInput [formControl]="myControl" [matAutocomplete]="auto">
+                    <input type="text" class="form-control" id="symbol-text" placeholder="e.g. AAPL" matInput [formControl]="searchFromControl" [matAutocomplete]="auto"  ng-change="completeSymbol('123123')">
                     <mat-autocomplete #auto="matAutocomplete">
                               <mat-option *ngFor="let option of options" [value]="option">
                                 {{ option }}
@@ -20,7 +20,6 @@
 
 
 <div>
-            
 
 </div>
 

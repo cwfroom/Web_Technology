@@ -11,15 +11,20 @@ import {FormControl} from '@angular/forms';
 })
 export class AppComponent {
   title = 'app';
-  myControl: FormControl = new FormControl();
+  searchFromControl: FormControl = new FormControl();
 
     options = [
       'One',
       'Two',
       'Three'
      ];
+
+  completeSymbol(symbolin: string): void {
+      console.log(symbolin);
+  }
+
+
 }
 
-function haha() {
-  console.log('haha');
-}
+console.log('123');
+
