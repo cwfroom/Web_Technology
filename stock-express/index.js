@@ -12,6 +12,7 @@ app.get('/', function (req, res) {
 
 
 app.get('/autocomplete/:symbol',autoComplete);
+app.get('/price/:symbol',getPrice);
 
 app.listen(8000, function () {
   console.log('Listening on port 8000!')
@@ -20,6 +21,22 @@ app.listen(8000, function () {
 function autoComplete(req,res){
 	var symbol = req.params.symbol;
 	fetchJSON(http,res,autoCompleteURL+symbol, autoCompleteParse);
+}
+
+function getPriceShort(req,res){
+
+}
+
+function getPrice(req,res){
+	var symbol = req.params.symbol;
+	var alpha_base_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=";
+	var alpha_api_key = "QUEJMT41CEQTOAWN";
+	var alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
+	console.log(alpha_url);
+
+	res.sendFile('AAPL.json', {root:__dirname});
+	//fetchJSON(https,res,alpha_url,echoJSON);
+
 }
 
 function fetchJSON(protocal, res, jsonURL,callback){
@@ -44,6 +61,10 @@ function autoCompleteParse(res, json){
 		result.push(item);
 	}
 	res.send(result);
+}
+
+function priceParse(res,json){
+
 }
 
 function echoJSON(res, data){
