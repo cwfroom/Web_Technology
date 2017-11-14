@@ -11,6 +11,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
@@ -25,7 +26,6 @@
 
     .prompt-text{
       font-weight: bold;
-      margin-bottom: 10px;
     }
     .round-corner{
       border-radius: 5px;
@@ -40,6 +40,28 @@
     .warning-text {
       color: #F00;
     }
+    
+    .panel-margin{
+      margin: 0 20px 0 20px;
+    }
+
+    .align-left{
+      float: left;
+    }
+
+    .align-right{
+      float: right;
+    }
+
+    .align-center{
+      margin: auto;
+      text-align: center;
+    }
+
+    .inline{
+      display: inline-block;
+    }
+    
 
   </style>
 
@@ -48,7 +70,8 @@
 
               angular
              .module('stockSearch', ['ngMaterial'])
-             .controller('autoCompleteController', autoCompleteController);
+             .controller('autoCompleteController', autoCompleteController)
+             .controller('infoController',infoController);
  
           function autoCompleteController ($timeout, $q, $log,$scope, $http) {
              var self = this;
@@ -79,11 +102,16 @@
 
              function searchTextChange(text) {
                 self.showWarning = !filterSpace(text);
+                if (self.showWarning){
+                  self.quoteButtonEnabled = 'disabled';
+                }else{
+                  self.quoteButtonEnabled = '';
+                }
              }
              
              function selectedItemChange(item) {
                 //$log.info('Item changed to ' + JSON.stringify(item));
-                toggleQuoteButton();
+                self.quoteButtonEnabled = '';
              }
 
              function filterSpace(text){
@@ -98,24 +126,16 @@
                 }
              }
 
-             function toggleQuoteButton(){
-                if (self.quoteButtonEnabled == 'disabled'){
-                  self.quoteButtonEnabled = ''
-                }else{
-                  self.quoteButtonEnabled == 'disabled'
-                }
-             }
-
-             function clearText(){
-               $log.info('123');
-               //self.searchText = '';
-             }
-
              $scope.clearText = function(){
                self.selectedItem = null;
-               self.searchText = "";
+               self.searchText = '';
+               self.quoteButtonEnabled = 'disabled';
              }
           }  
+
+          function infoController($scope,$http,$q,$timeout){
+
+          }
 
   </script>
 
@@ -137,6 +157,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               <div class="col-sm-3 prompt-text">Enter Stocker Ticker Symbol:*</div>
               <div class="col-sm-6">
                  <form ng-submit = "$event.preventDefault()">
+
                     <md-autocomplete
                        ng-disabled = "ctrl.isDisabled"
                        md-no-cache = "ctrl.noCache"
@@ -158,6 +179,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                        <md-not-found>
                         </md-not-found>
                     </md-autocomplete>
+                  
                  </form>             
  
                  <div ng-show='ctrl.showWarning' class='warning-text'>Please enter a stock ticker symbol.</div>
@@ -173,7 +195,152 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
   <hr>
 
   <div class='row round-corner bg-white'>
+            <div class='panel panel-default panel-margin' id='list-panel'>
+                <div class='panel-heading'>
+                  <span class='prompt-text'>Favorite List</span>
+                  <span class='align-right'>
+                    <span class='hidden-xs'>Automatic Refresh:</span>
+                    <input type="checkbox" data-toggle="toggle" data-size="small">
+                    <button type="button" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon glyphicon-menu-right"></span>
+                    </button>
+                  </span>
 
+                </div>
+                <div class='panel-body'>
+                  <div class="col-sm-3">
+                      <span class='prompt-text'>Sort by</span>
+                      <select>
+                        <option>Default</option>
+                        <option>Symbol</option>
+                        <option>Price</option>
+                        <option>Change</option>
+                        <option>Change Percent</option>
+                        <option>Volume</option>
+                      </select>
+                  </div>
+                  <div class="col-sm-3">
+                      <span class='prompt-text'>Order</span>
+                      <select>
+                        <option>Ascending</option>
+                        <option>Descending</option>
+                      </select>
+                  </div>
+
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Symbol</th>
+                        <th>Stock Price</th>
+                        <th>Change (Change Percent)</th>
+                        <th>Volume</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                  </table>
+
+                </div>
+              
+            </div>
+
+            <div class='panel panel-default panel-margin' id='details-panel'>
+              <div class='panel-heading'>
+                <div class='align-left'>
+                    <button type="button" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon glyphicon-menu-left"></span>
+                    </button>
+                  </div>
+                
+                <div class="prompt-text align-center">Stock Details</div>
+              </div>
+              <div class='panel-body'>
+                  <ul class="nav nav-pills">
+                      <li role="presentation" class="active"><a href="#">Current Stock</a></li>
+                      <li role="presentation"><a href="#">Historical Charts</a></li>
+                      <li role="presentation"><a href="#">News Feeds</a></li>
+                  </ul>
+
+                  <hr>
+
+                    <div id="currentDetails">
+                      <div class="col-sm-6">
+                        <span class="prompt-text">Stock Details</span>
+                        <span class="align-right">
+                            <button type="button" class="btn btn-default btn-sm">
+                                <span class="glyphicon glyphicon-star-empty"></span>
+                            </button>
+                            <button type="button" class="btn btn-default btn-sm">
+                                <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" height="20px">
+                            </button>
+
+                        </span>
+                        
+
+
+                      <table class="table table-striped">
+                        <tr>
+                          <td class="prompt-text">Stock Ticker Symbol</td>
+                          <td>123</td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Last Price</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Change (Change Percent)</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Timestamp</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Open</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Previous Close</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Day's Range</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Volume</td>
+                            <td></td>
+                        </tr>
+
+                      </table>
+
+                    </div>
+                    
+
+                      <div class="col-sm-6">
+                          <ul class="nav nav-tabs">
+                              <li role="presentation" class="active"><a href="#">Price</a></li>
+                              <li role="presentation"><a href="#">SMA</a></li>
+                              <li role="presentation"><a href="#">EMA</a></li>
+                              <li role="presentation"><a href="#">STOCH</a></li>
+                              <li role="presentation"><a href="#">RSI</a></li>
+                              <li role="presentation"><a href="#">ADX</a></li>
+                              <li role="presentation"><a href="#">CCI</a></li>
+                              <li role="presentation"><a href="#">BBANDS</a></li>
+                              <li role="presentation"><a href="#">MACD</a></li>
+                          </ul>
+                      </div>
+                    </div>
+
+
+                   
+
+              </div>
+
+
+            </div>
   </div>
 
 
