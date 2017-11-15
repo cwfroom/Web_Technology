@@ -20,6 +20,10 @@
   <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-sanitize.js"></script>
 
+  <script src="https://momentjs.com/downloads/moment.js"></script>
+  <script src="https://momentjs.com/downloads/moment-timezone-with-data-2012-2022.js"></script>
+  
+
   <style type="text/css">
     body{
       background-image : url("http://cs-server.usc.edu:45678/hw/hw8/images/background.png");
@@ -65,17 +69,21 @@
     }
     
   </style>
+<!--
+http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png
+http://cs-server.usc.edu:45678/hw/hw8/images/Up.png
+http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
+-->
+
 
   <script type="text/javascript">
             const serverURL = window.location.href;
-            const green_arrow_up = "http://cs-server.usc.edu:45678/hw/hw6/images/Green_Arrow_Up.png";
-            const red_arrow_down = "http://cs-server.usc.edu:45678/hw/hw6/images/Red_Arrow_Down.png";  
+            const green_arrow_up = "http://cs-server.usc.edu:45678/hw/hw8/images/Up.png";
+            const red_arrow_down = "http://cs-server.usc.edu:45678/hw/hw8/images/Down.png";  
 					  
               angular
              .module('stockSearch', ['ngMaterial','ngSanitize'])
              .controller('stockController', stockController);
-                  
-
 
           function stockController ($timeout, $q, $log,$rootScope,$scope, $http) {
              var self = this;
@@ -175,12 +183,14 @@
                   }
                   self.changeStr = self.change + "(" + self.changePercent + ")<img height=\"20px\" src=\"" + self.changeImage + "\">";
                   self.range = today_data["3. low"] + "-" + today_data["2. high"];
-                  self.timestamp = meta_data["3. Last Refreshed"];
+                  self.timestamp = moment(meta_data["3. Last Refreshed"]).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss z'); 
                   self.volume = numberWithCommas(today_data["5. volume"]);
+
+                  drawPriceChart(time_series);
              }
 
-             function drawPriceChart(){
-
+             function drawPriceChart(data){
+                  
              }
 
              function logJSON(json){
@@ -227,11 +237,6 @@
 </head>
 <body ng-app="stockSearch" ng-cloak>
 
-<!--
-http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png
-http://cs-server.usc.edu:45678/hw/hw8/images/Up.png
-http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
--->
 
 <div class="container"  ng-controller="stockController as ctrl">
   <div class="row round-corner bg-white">
@@ -334,7 +339,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               <div class='panel-heading'>
                 <div class='align-left'>
                     <button type="button" class="btn btn-default btn-sm">
-                        <span class="glyphicon glyphicon glyphicon-menu-left"></span>
+                        <span class="glyphicon glyphicon-menu-left"></span>
                     </button>
                   </div>
                 
@@ -342,9 +347,9 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               </div>
               <div class='panel-body'>
                   <ul class="nav nav-pills">
-                      <li role="presentation" class="active"><a href="#">Current Stock</a></li>
-                      <li role="presentation"><a href="#">Historical Charts</a></li>
-                      <li role="presentation"><a href="#">News Feeds</a></li>
+                      <li role="presentation" class="active"><a href="#"><span class="glyphicon glyphicon-dashboard"></span> Current Stock</a></li>
+                      <li role="presentation"><a href="#"><span class="glyphicon glyphicon-stats"></span> Historical Charts</a></li>
+                      <li role="presentation"><a href="#"><span class="glyphicon glyphicon-link"></span>News Feeds</a></li>
                   </ul>
 
                   <hr>
