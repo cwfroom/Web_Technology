@@ -5,8 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
   <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+
   
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -17,6 +18,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-sanitize.js"></script>
 
   <style type="text/css">
     body{
@@ -62,14 +64,15 @@
       display: inline-block;
     }
     
-
   </style>
 
   <script type="text/javascript">
-            var serverURL = window.location.href;
-
+            const serverURL = window.location.href;
+            const green_arrow_up = "http://cs-server.usc.edu:45678/hw/hw6/images/Green_Arrow_Up.png";
+            const red_arrow_down = "http://cs-server.usc.edu:45678/hw/hw6/images/Red_Arrow_Down.png";  
+					  
               angular
-             .module('stockSearch', ['ngMaterial'])
+             .module('stockSearch', ['ngMaterial','ngSanitize'])
              .controller('stockController', stockController);
                   
 
@@ -83,7 +86,8 @@
              self.selectedItemChange = selectedItemChange;
              self.searchTextChange   = searchTextChange;
              self.showWarning = false;
-             self.quoteButtonEnabled = 'disabled';
+            //self.quoteButtonEnabled = 'disabled';
+             self.quoteButtonEnabled = '';
 
              function querySearch (query) {
                 if (filterSpace(query)){
@@ -115,6 +119,76 @@
                 self.quoteButtonEnabled = '';
              }
 
+
+
+             function getStockAPI(){
+                //var apiURL = serverURL + "price\/" + self.searchText;
+                var apiURL = serverURL + "price\/" + "AAPL";
+                $log.info(apiURL);
+                getJSON(apiURL,parsePrice);
+
+             }
+
+             function getJSON(url,callback){
+                $http.get(url).success(
+                    function(data){
+                      callback(data);
+                    }
+              );
+             }
+            
+            self.date_keys = [];
+            self.currentSymbol = "";
+            self.today_open = "";
+            self.today_close = "";
+            self.yesterday_close = "";
+            self.change = "";
+            self.changePercent = "";
+            self.changeImage = "";
+            self.changeStr = "";
+            self.range = "";
+            self.volume = "";
+            self.timestamp = "";
+
+            function parsePrice(data){
+
+                  var meta_data = data["Meta Data"];
+                  var time_series = data["Time Series (Daily)"];
+                  date_keys = Object.keys(time_series);
+                  var today_data = time_series[date_keys[0]];
+                  var yesterday_data = time_series[date_keys[1]];
+
+                  $log.info(date_keys);
+                  $log.info(today_data);
+                  $log.info(yesterday_data);
+
+                  self.currentSymbol = meta_data["2. Symbol"];
+                  self.today_open = today_data["1. open"];
+                  self.today_close = today_data["4. close"];
+                  self.yesterday_close = yesterday_data["4. close"];
+                  self.change = (self.today_close - self.yesterday_close).toFixed(2);
+                  self.changePercent = (self.change / self.yesterday_close * 100).toFixed(2) + "%";
+                  if (self.change >= 0){
+                    self.changeImage = green_arrow_up; 
+                  }else{
+                    self.changeImage = red_arrow_down;
+                  }
+                  self.changeStr = self.change + "(" + self.changePercent + ")<img height=\"20px\" src=\"" + self.changeImage + "\">";
+                  self.range = today_data["3. low"] + "-" + today_data["2. high"];
+                  self.timestamp = meta_data["3. Last Refreshed"];
+                  self.volume = numberWithCommas(today_data["5. volume"]);
+             }
+
+             function drawPriceChart(){
+
+             }
+
+             function logJSON(json){
+               $log.info(json);
+             }
+
+
+             //Helpers
              function filterSpace(text){
                 if (text == ''){
                   return false;
@@ -128,26 +202,12 @@
              }
 
 
-             function getStockAPI(){
-                var apiURL = serverURL + "price\/" + self.searchText;
-                $log.info(apiURL);
-                getJSON(apiURL,logJSON);
+             function numberWithCommas(x) {
+                  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              }
 
-             }
 
-             function getJSON(url,callback){
-                $http.get(url).success(
-                    function(data){
-                      callback(data);
-                    }
-              );
-             }
-
-             function logJSON(json){
-               $log.info(json);
-             }
-
-             //Scope interactions
+             //HTML interactions
              $scope.clearText = function(){
                self.selectedItem = null;
                self.searchText = '';
@@ -307,35 +367,35 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                       <table class="table table-striped">
                         <tr>
                           <td class="prompt-text">Stock Ticker Symbol</td>
-                          <td>123</td>
+                          <td>{{ctrl.currentSymbol}}</td>
                         </tr>
                         <tr>
                             <td class="prompt-text">Last Price</td>
-                            <td></td>
+                            <td>{{ctrl.today_close}}</td>
                         </tr>
                         <tr>
                             <td class="prompt-text">Change (Change Percent)</td>
-                            <td></td>
+                            <td ng-bind-html="ctrl.changeStr"></td>
                         </tr>
                         <tr>
                             <td class="prompt-text">Timestamp</td>
-                            <td></td>
+                            <td>{{ctrl.timestamp}}</td>
                         </tr>
                         <tr>
                             <td class="prompt-text">Open</td>
-                            <td></td>
+                            <td>{{ctrl.today_open}}</td>
                         </tr>
                         <tr>
                             <td class="prompt-text">Previous Close</td>
-                            <td></td>
+                            <td>{{ctrl.yesterday_close}}</td>
                         </tr>
                         <tr>
                             <td class="prompt-text">Day's Range</td>
-                            <td></td>
+                            <td>{{ctrl.range}}</td>
                         </tr>
                         <tr>
                             <td class="prompt-text">Volume</td>
-                            <td></td>
+                            <td>{{ctrl.volume}}</td>
                         </tr>
 
                       </table>
