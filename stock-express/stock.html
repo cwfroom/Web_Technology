@@ -23,6 +23,8 @@
   <script src="https://momentjs.com/downloads/moment.js"></script>
   <script src="https://momentjs.com/downloads/moment-timezone-with-data-2012-2022.js"></script>
   
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
   <style type="text/css">
     body{
@@ -68,6 +70,11 @@
       display: inline-block;
     }
     
+    .blue-anchor{
+				color: #0000ff;
+				text-decoration: none;
+    }
+
   </style>
 <!--
 http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png
@@ -84,6 +91,8 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               angular
              .module('stockSearch', ['ngMaterial','ngSanitize'])
              .controller('stockController', stockController);
+
+
 
           function stockController ($timeout, $q, $log,$rootScope,$scope, $http) {
              var self = this;
@@ -128,24 +137,9 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              }
 
 
-
-             function getStockAPI(){
-                //var apiURL = serverURL + "price\/" + self.searchText;
-                var apiURL = serverURL + "price\/" + "AAPL";
-                $log.info(apiURL);
-                getJSON(apiURL,parsePrice);
-
-             }
-
-             function getJSON(url,callback){
-                $http.get(url).success(
-                    function(data){
-                      callback(data);
-                    }
-              );
-             }
-            
+            self.time_series = [];
             self.date_keys = [];
+            self.parsed_dates = [];
             self.currentSymbol = "";
             self.today_open = "";
             self.today_close = "";
@@ -157,19 +151,43 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
             self.range = "";
             self.volume = "";
             self.timestamp = "";
+            self.currentInd = "";
+            self.currentIndLines = 0;
+
+             function getStockAPI(){
+                //var apiURL = serverURL + "price\/" + self.searchText;
+                var apiURL = serverURL + "price\/" + "AAPL";
+                //$log.info(apiURL);
+                getJSON(apiURL,parsePrice);
+             }
+
+             function getIndicatorAPI(ind,lines){
+               //var apiURL = serverURL + "indicator\/" + self.searchText + "\/" + ind;
+               var apiURL = serverURL + "indicator\/" + "AAPL" + "\/" + ind;
+               
+              self.currentInd = ind;
+              self.currentIndLines = lines;
+            
+              getJSON(apiURL,drawIndicatorChart);
+             }
+
+             function getJSON(url,callback){
+                $http.get(url).success(
+                    function(data){
+                      callback(data);
+                    }
+              );
+             }
 
             function parsePrice(data){
 
                   var meta_data = data["Meta Data"];
-                  var time_series = data["Time Series (Daily)"];
-                  date_keys = Object.keys(time_series);
-                  var today_data = time_series[date_keys[0]];
-                  var yesterday_data = time_series[date_keys[1]];
-
-                  $log.info(date_keys);
-                  $log.info(today_data);
-                  $log.info(yesterday_data);
-
+                  self.time_series = data["Time Series (Daily)"];
+                  
+                  self.date_keys = Object.keys(self.time_series);
+                  var today_data = self.time_series[self.date_keys[0]];
+                  var yesterday_data = self.time_series[self.date_keys[1]];
+ 
                   self.currentSymbol = meta_data["2. Symbol"];
                   self.today_open = today_data["1. open"];
                   self.today_close = today_data["4. close"];
@@ -186,17 +204,76 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                   self.timestamp = moment(meta_data["3. Last Refreshed"]).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss z'); 
                   self.volume = numberWithCommas(today_data["5. volume"]);
 
-                  drawPriceChart(time_series);
+                  drawPriceChart();
              }
 
-             function drawPriceChart(data){
+             function drawPriceChart(){
+                  if (self.time_series.length == 0){
+                    return;
+                  }    
+
+                  var data = self.time_series;
+
+                  var parsed_dates = [];
+                  var price_data = [];
+                  var volume_data = [];
+
+                  var today_date = self.date_keys[0];
+                  var today_date_split = today_date.split("-");
+                  var current_month = today_date_split[1];
+                  var current_day = today_date_split[2];
+
+                  for (var i in self.date_keys){
+                    var i_date = self.date_keys[i];
+                    var i_date_split = i_date.split("-");
+                    var i_month = i_date_split[1];
+                    var i_day = i_date_split[2];
+
+                    var i_item = data[i_date];
+                    parsed_dates.push(i_month + "/" + i_day);
+                    price_data.push(parseFloat(i_item["4. close"]));
+                    volume_data.push(parseFloat(i_item["5. volume"]));
+
+                    if (i_month == current_month-6 && i_day <= current_day && (i % 5) ==0){
+                      break;
+                    }
+                  }
                   
+                  parsed_dates.reverse();
+                  price_data.reverse();
+                  volume_data.reverse();
+                  self.parsed_dates = parsed_dates;
+
+                  highChartDrawPrice(self.currentSymbol,parsed_dates,price_data,volume_data);
              }
 
-             function logJSON(json){
-               $log.info(json);
+             function drawIndicatorChart(data){
+                if (self.currentIndLines == 1){
+                    drawSingleLineChart(data,self.currentSymbol,self.currentInd,self.parsed_dates);
+                }else if(self.currentIndLines == 2){
+                    drawDoubleLineChart(data,self.currentSymbol,self.currentInd,self.parsed_dates);                    
+                }else if(self.currentIndLines ==3){
+                    drawTripleLineChart(data,self.currentSymbol,self.currentInd,self.parsed_dates);                    
+                }
              }
 
+             self.detailsNav = ["active",'',''];
+             self.chartsNav = ["active",'','','','','','','',''];
+
+             function activeChartsNav(x){
+                $log.info("called");
+                 activeTab(self.chartsNav,x);
+             }
+
+             function activeTab(nav,x){
+                for (var i = 0;i<nav.length;i++){
+                  if (i == x){
+                    nav[i] = "active";
+                  }else{
+                    nav[i] = "";
+                  }
+                }
+             }
 
              //Helpers
              function filterSpace(text){
@@ -227,18 +304,356 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              $scope.getQuote = function(){
                getStockAPI();               
              }
+
+             $scope.drawPrice = function(){
+               drawPriceChart();
+               activeChartsNav(0);
+             }
+
+             $scope.drawIndicator = function(ind,lines,tab){
+                getIndicatorAPI(ind,lines);
+                activeChartsNav(tab);
+            }
+
+             
           }  
 
-        
+          function highChartDrawPrice(symbol, parsed_dates,close_values,volume_values){
+            Highcharts.chart('chart-container', {
+                  chart :{
+                    zoomType : 'x'
+                  },
+					        title: {
+					            text: symbol + " Stock Price and Volume"
+					        },
+					        subtitle:{
+					        	text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+					        	useHTML : true
+					        },
+					        tooltip: {
+					        	pointFormat : '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y: .2f}</b><br/>'
+    						},
+					        xAxis: {					        	
+					            categories: parsed_dates,
+					            tickInterval : 5,
+					        },
+					        yAxis: [{ // Primary yAxis
+							        labels: {
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        },
+							        title: {
+							            text: 'Stock Price',
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        }
+							    }, { // Secondary yAxis
+							        title: {
+							            text: 'Volume',
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        },
+							        labels: {
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        },
+							        opposite: true
+							    }],
+					        series: [{
+					        	type : 'area',
+					            name: symbol,
+					            data: close_values,
+					            color : "#393280"
+					        },{
+					        	yAxis : 1,
+					        	type : 'column',
+					        	name : symbol + "Volume",
+					        	data : volume_values,
+					        	color : "#cf454d"
+					        }]
+					    });
+          }
+
+          function drawSingleLineChart(data_json, symbol, acry, parsed_dates){
+						var root_keys = Object.keys(data_json);
+						var ind_title = (data_json[root_keys[0]])["2: Indicator"];
+						var data_series = data_json[root_keys[1]];
+						var date_keys = Object.keys(data_series);
+						var ind_acry =  Object.keys((data_json[root_keys[1]])[date_keys[0]])[0] ;
+						
+						var x_data = [];
+
+						for (var i = 0;i<parsed_dates.length;i++){
+							x_data.unshift( parseFloat((data_series[date_keys[i]])[ind_acry]) );
+						}
+
+						var y_ticks = yIntervalHelper(x_data);
+						
+						Highcharts.chart('chart-container', {
+                            chart :{
+                                zoomType : 'x'
+                            },
+					        title: {
+					            text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
+					        },
+					        subtitle:{
+					     		text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+					        	useHTML : true
+					        },
+					        xAxis: {					        	
+					            categories: parsed_dates,
+					            tickInterval : 5,
+					            minorGridLineWidth: 0,
+						        minorTickInterval: 'auto',
+						        minorTickColor: '#d7606a',
+						        minorTickWidth: 1,
+						        endOnTick : true
+					        },
+					        yAxis: { // Primary yAxis
+					        		floor: y_ticks[0],
+        							ceiling: y_ticks[1],
+							        labels: {
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        },
+							        title: {
+							            text: acry,
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        }
+							    },
+							legend: {
+								align : 'center',
+								verticalAlign :'bottom'
+							},
+					        series: [{
+					        	type : 'line',
+					            name: symbol,
+					            data: x_data,
+					            color : '#d7606a',
+					            lineWidth : 1,
+					            marker: {
+             				   		enabled: true,
+             				   		radius: 1
+            					}					        	
+					        	}
+					        ]
+					    });
+					    						
+					}
+
+					function drawDoubleLineChart(data_json, symbol, acry, parsed_dates){
+						var root_keys = Object.keys(data_json);
+						var ind_title = (data_json[root_keys[0]])["2: Indicator"];
+						var data_series = data_json[root_keys[1]];
+						var date_keys = Object.keys(data_series);
+						var ind_keys =  Object.keys((data_json[root_keys[1]])[date_keys[0]]) ;
+						
+						var x_data_0 = [];
+						var x_data_1 = [];
+						
+
+						for (var i = 0;i<parsed_dates.length;i++){
+							x_data_0.unshift( parseFloat((data_series[date_keys[i]])[ind_keys[0]]));
+							x_data_1.unshift( parseFloat((data_series[date_keys[i]])[ind_keys[1]]));
+						}
+
+						var y_ticks = yIntervalHelper(x_data_0);
+						
+						Highcharts.chart('chart-container', {
+                            chart :{
+                                zoomType : 'x'
+                            },
+					        title: {
+					            text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
+					        },
+					        subtitle:{
+					        	text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+					        	useHTML : true
+					        },
+					        xAxis: {					        	
+					            categories: parsed_dates,
+					            tickInterval : 5,
+					            minorGridLineWidth: 0,
+						        minorTickInterval: 'auto',
+						        minorTickColor: '#d7606a',
+						        minorTickWidth: 1
+					        },
+					        yAxis: { // Primary yAxis
+					        		
+							        labels: {
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        },
+							        title: {
+							            text: acry,
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        }
+							    },
+                            legend: {
+                                    align : 'center',
+                                    verticalAlign :'bottom'
+                                },
+					        series: [{
+					        	type : 'line',
+					            name: symbol + " " + ind_keys[0],
+					            data: x_data_0,
+					            color : '#d7606a',
+					            lineWidth : 1,
+					            marker: {
+             				   		enabled: true,
+             				   		radius: 1
+            					}					        	
+					        	},
+					        	{
+					        	type : 'line',
+					            name: symbol + " " + ind_keys[1],
+					            data: x_data_1,
+					            color : '#00bfff',
+					            lineWidth : 1,
+					            marker: {
+             				   		enabled: true,
+             				   		radius: 1
+            					}					        	
+					        	}
+					        ]
+					    });
+					    						
+					}
+
+				function drawTripleLineChart(data_json, symbol, acry, parsed_dates){
+						var root_keys = Object.keys(data_json);
+						var ind_title = (data_json[root_keys[0]])["2: Indicator"];
+						var data_series = data_json[root_keys[1]];
+						var date_keys = Object.keys(data_series);
+						var ind_keys =  Object.keys((data_json[root_keys[1]])[date_keys[0]]) ;
+						
+						var x_data_0 = [];
+						var x_data_1 = [];
+						var x_data_2 = [];	
+
+						for (var i = 0;i<parsed_dates.length;i++){
+							x_data_0.unshift( parseFloat((data_series[date_keys[i]])[ind_keys[0]]));
+							x_data_1.unshift( parseFloat((data_series[date_keys[i]])[ind_keys[1]]));
+							x_data_2.unshift( parseFloat((data_series[date_keys[i]])[ind_keys[2]]));
+						}
+
+						var y_ticks = yIntervalHelper(x_data_0);
+
+						
+						Highcharts.chart('chart-container', {
+                            chart :{
+                                zoomType : 'x'
+                            },
+					        title: {
+					            text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
+					        },
+					        subtitle:{
+					        	text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+					        	useHTML : true
+					        },
+					        xAxis: {					        	
+					            categories: parsed_dates,
+					            tickInterval : 5,
+					            minorGridLineWidth: 0,
+						        minorTickInterval: 'auto',
+						        minorTickColor: '#d7606a',
+						        minorTickWidth: 1
+					        },
+					        yAxis: { // Primary yAxis
+					        		
+							        labels: {
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        },
+							        title: {
+							            text: acry,
+							            style: {
+							                color: Highcharts.getOptions().colors[1]
+							            }
+							        }
+							    },
+                            legend: {
+                                    align : 'center',
+                                    verticalAlign :'bottom'
+                                },
+					        series: [{
+					        	type : 'line',
+					            name: symbol + " " + ind_keys[0],
+					            data: x_data_0,
+					            color : '#d7606a',
+					            lineWidth : 1,
+					            marker: {
+             				   		enabled: true,
+             				   		radius: 1
+            					}					        	
+					        	},
+					        	{
+					        	type : 'line',
+					            name: symbol + " " + ind_keys[1],
+					            data: x_data_1,
+					            color : '#00bfff',
+					            lineWidth : 1,
+					            marker: {
+             				   		enabled: true,
+             				   		radius: 1
+            					}					        	
+					        	},
+					        	{
+					        	type : 'line',
+					            name: symbol + " " + ind_keys[2],
+					            data: x_data_2,
+					            color : '#00b200',
+					            lineWidth : 1,
+					            marker: {
+             				   		enabled: true,
+             				   		radius: 1
+            					}					        	
+					        	}
+					        ]
+					    });
+					    						
+          }
+          
+          function yIntervalHelper(arr){
+						var max = arr[0];
+						var min = arr[1];
+						for (var i=0;i<arr.length;i++){
+							if ( arr[i] > max ){
+								max = arr[i];
+							}
+							if (arr[i] < min){
+								min = arr[i];
+							}
+						}
+
+						var result = [];
+						result.push(min);
+						result.push(max);
+
+						return result;
+					}
+
+
 
   </script>
 
 
 </head>
-<body ng-app="stockSearch" ng-cloak>
+<body ng-app="stockSearch"  ng-controller="stockController as ctrl" ng-cloak>
 
 
-<div class="container"  ng-controller="stockController as ctrl">
+<div class="container">
   <div class="row round-corner bg-white">
         <div class="col text-center prompt-text">Stock Market Search</div>
         <div class="form-group" >
@@ -410,16 +825,18 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
                       <div class="col-sm-6">
                           <ul class="nav nav-tabs">
-                              <li role="presentation" class="active"><a href="#">Price</a></li>
-                              <li role="presentation"><a href="#">SMA</a></li>
-                              <li role="presentation"><a href="#">EMA</a></li>
-                              <li role="presentation"><a href="#">STOCH</a></li>
-                              <li role="presentation"><a href="#">RSI</a></li>
-                              <li role="presentation"><a href="#">ADX</a></li>
-                              <li role="presentation"><a href="#">CCI</a></li>
-                              <li role="presentation"><a href="#">BBANDS</a></li>
-                              <li role="presentation"><a href="#">MACD</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[0]}}"><a ng-click="drawPrice()">Price</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[1]}}"><a ng-click='drawIndicator("SMA",1,1)'>SMA</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[2]}}"><a ng-click='drawIndicator("EMA",1,2)'>EMA</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[3]}}"><a ng-click='drawIndicator("STOCH",2,3)'>STOCH</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[4]}}"><a ng-click='drawIndicator("RSI",1,4)'>RSI</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[5]}}"><a ng-click='drawIndicator("ADX",1,5)'>ADX</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[6]}}"><a ng-click='drawIndicator("CCI",1,6)'>CCI</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[7]}}"><a ng-click='drawIndicator("BBANDS",3,7)'>BBANDS</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[8]}}"><a ng-click='drawIndicator("MACD",3,8)'>MACD</a></li>
                           </ul>
+
+                          <div id="chart-container"></div>
                       </div>
                     </div>
 
