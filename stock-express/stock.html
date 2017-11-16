@@ -71,8 +71,14 @@
     }
     
     .blue-anchor{
-				color: #0000ff;
-				text-decoration: none;
+	    color: #0000ff;
+		text-decoration: none;
+    }
+
+    .news-title{
+        color :darkmagenta;
+        font-size: 16px;
+        font-weight: bold;
     }
 
   </style>
@@ -171,6 +177,12 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               getJSON(apiURL,drawIndicatorChart);
              }
 
+             function getNewsAPI(){
+                 //var apiURL = serverURL + "news\/" + self.currentSymbol;
+                var apiURL = serverURL + "news\/AAPL";
+                getJSON(apiURL,showNews);    
+            }
+
              function getJSON(url,callback){
                 $http.get(url).success(
                     function(data){
@@ -180,7 +192,6 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              }
 
             function parsePrice(data){
-
                   var meta_data = data["Meta Data"];
                   self.time_series = data["Time Series (Daily)"];
                   
@@ -257,12 +268,26 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 }
              }
 
+
+             self.newsData = [];
+
+             function showNews(data){
+                $log.info(data);
+                self.newsData = data;
+             }
+
+
+             //Page Mulnipulation
              self.detailsNav = ["active",'',''];
+             self.detailsDiv = [true,false,false];
              self.chartsNav = ["active",'','','','','','','',''];
 
              function activeChartsNav(x){
-                $log.info("called");
-                 activeTab(self.chartsNav,x);
+                activeTab(self.chartsNav,x);
+             }
+
+             function activeDetailsNav(x){
+                 activeTab(self.detailsNav,x);
              }
 
              function activeTab(nav,x){
@@ -274,6 +299,16 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                   }
                 }
              }
+
+            function activeDiv(x){
+                for (var i=0;i<self.detailsDiv.length;i++){
+                    if (i == x){
+                        self.detailsDiv[i] = true;
+                    }else{
+                        self.detailsDiv[i] = false;
+                    }
+                }
+            }
 
              //Helpers
              function filterSpace(text){
@@ -314,6 +349,24 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 getIndicatorAPI(ind,lines);
                 activeChartsNav(tab);
             }
+
+             $scope.switchCurrentStock = function(){
+                 activeDetailsNav(0);
+                 activeDiv(0);
+                 getStockAPI();  
+             }
+
+             $scope.switchHistoricalChart = function(){
+                activeDetailsNav(1); 
+                activeDiv(1);
+
+             }
+
+             $scope.switchNews = function(){
+                activeDetailsNav(2); 
+                activeDiv(2);
+                getNewsAPI();
+             }
 
              
           }  
@@ -762,14 +815,14 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               </div>
               <div class='panel-body'>
                   <ul class="nav nav-pills">
-                      <li role="presentation" class="active"><a href="#"><span class="glyphicon glyphicon-dashboard"></span> Current Stock</a></li>
-                      <li role="presentation"><a href="#"><span class="glyphicon glyphicon-stats"></span> Historical Charts</a></li>
-                      <li role="presentation"><a href="#"><span class="glyphicon glyphicon-link"></span>News Feeds</a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[0]}}"><a ng-click="switchCurrentStock()"><span class="glyphicon glyphicon-dashboard"></span> Current Stock</a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[1]}}"><a ng-click="switchHistoricalChart()"><span class="glyphicon glyphicon-stats"></span> Historical Charts</a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[2]}}"><a ng-click="switchNews()"><span class="glyphicon glyphicon-link"></span>News Feeds</a></li>
                   </ul>
 
                   <hr>
 
-                    <div id="currentDetails">
+                    <div id="currentDetails" ng-show="ctrl.detailsDiv[0]">
                       <div class="col-sm-6">
                         <span class="prompt-text">Stock Details</span>
                         <span class="align-right">
@@ -782,8 +835,6 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
                         </span>
                         
-
-
                       <table class="table table-striped">
                         <tr>
                           <td class="prompt-text">Stock Ticker Symbol</td>
@@ -840,6 +891,15 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                       </div>
                     </div>
 
+                    <div id="historical-chart-container" ng-show="ctrl.detailsDiv[1]"></div>
+
+                    <div id="news-container" ng-show="ctrl.detailsDiv[2]">
+                        <div class="well" ng-repeat="news in ctrl.newsData">
+                            <div class="news-title"><a href={{news["link"]}} target="_blank">{{news["title"]}}</a></div><br>
+                            <div class="prompt-text">Author: {{news["author"]}}</div><br>
+                            <div class="prompt-text">Date: {{news["date"]}}</div>
+                        </div>
+                    </div>
 
                    
 
