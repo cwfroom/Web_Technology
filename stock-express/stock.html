@@ -23,8 +23,9 @@
   <script src="https://momentjs.com/downloads/moment.js"></script>
   <script src="https://momentjs.com/downloads/moment-timezone-with-data-2012-2022.js"></script>
   
-  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
   <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  
 
   <style type="text/css">
     body{
@@ -268,6 +269,23 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 }
              }
 
+             function drawHistoricalChart(){
+                    var parsed_price = [];
+
+                    for (var i=0;i<1000;i++){
+                        var i_date = self.date_keys[i];
+                        var i_price = parseFloat(self.time_series[i_date]["4. close"]);
+                        var i_parsed_date = parseInt(moment(i_date).format("x"));
+                        parsed_price.push([i_parsed_date,i_price]);
+                        
+                    }
+
+                    parsed_price.reverse();
+                    
+
+                    highChartDrawHistoricalChart(self.currentSymbol,parsed_price);
+                    
+             }
 
              self.newsData = [];
 
@@ -359,7 +377,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              $scope.switchHistoricalChart = function(){
                 activeDetailsNav(1); 
                 activeDiv(1);
-
+                drawHistoricalChart();
              }
 
              $scope.switchNews = function(){
@@ -501,7 +519,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 					    						
 					}
 
-					function drawDoubleLineChart(data_json, symbol, acry, parsed_dates){
+			function drawDoubleLineChart(data_json, symbol, acry, parsed_dates){
 						var root_keys = Object.keys(data_json);
 						var ind_title = (data_json[root_keys[0]])["2: Indicator"];
 						var data_series = data_json[root_keys[1]];
@@ -583,7 +601,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 					    						
 					}
 
-				function drawTripleLineChart(data_json, symbol, acry, parsed_dates){
+		    function drawTripleLineChart(data_json, symbol, acry, parsed_dates){
 						var root_keys = Object.keys(data_json);
 						var ind_title = (data_json[root_keys[0]])["2: Indicator"];
 						var data_series = data_json[root_keys[1]];
@@ -678,7 +696,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 					    						
           }
           
-          function yIntervalHelper(arr){
+          function yIntervalHelper(arr){   
 						var max = arr[0];
 						var min = arr[1];
 						for (var i=0;i<arr.length;i++){
@@ -699,6 +717,85 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
 
 
+        function highChartDrawHistoricalChart(symbol,data){
+            var chart = Highcharts.stockChart('historical-chart-container', {
+                
+                title: {
+                    text: symbol + " Stock Value"
+                },
+
+                subtitle: {
+                    text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+					useHTML : true
+                },
+
+                rangeSelector: {
+                    allButtonsEnabled: true,
+                    buttons: [{
+                        type: 'week',
+                        count: 1,
+                        text: '1w'
+                    }, {
+                        type: 'month',
+                        count: 1,
+                        text: '1m',       
+                    }, {
+                        type : 'month',
+                        count: 3,
+                        text : '3m'
+                    },{
+                        type: 'month',
+                        count: 6,
+                        text: '6m'
+                    },{
+                        type: 'ytd',
+                        count : 1,
+                        text: 'YTD'
+                    },{
+                        type: 'year',
+                        count: 1,
+                        text: '1y'
+                    },{
+                        type: 'all',
+                        text: 'ALL'
+                    }
+
+                ],
+                    
+                    selected: 0
+                },
+
+                series: [{
+                    name: 'AAPL Stock Price',
+                    data: data,
+                    type: 'area',
+                    threshold: 0,
+                    tooltip: {
+                        valueDecimals: 2
+                    }
+                }],
+
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            chart: {
+                                height: 300
+                            },
+                            subtitle: {
+                                text: null
+                            },
+                            navigator: {
+                                enabled: false
+                            }
+                        }
+                    }]
+                }
+            });
+        }
+  
   </script>
 
 
@@ -891,7 +988,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                       </div>
                     </div>
 
-                    <div id="historical-chart-container" ng-show="ctrl.detailsDiv[1]"></div>
+                    <div id="historical-chart-container" class="col-sm-12" ng-show="ctrl.detailsDiv[1]"></div>
 
                     <div id="news-container" ng-show="ctrl.detailsDiv[2]">
                         <div class="well" ng-repeat="news in ctrl.newsData">
