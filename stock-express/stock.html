@@ -201,9 +201,10 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                   var yesterday_data = self.time_series[self.date_keys[1]];
  
                   self.currentSymbol = meta_data["2. Symbol"];
-                  self.today_open = today_data["1. open"];
-                  self.today_close = today_data["4. close"];
-                  self.yesterday_close = yesterday_data["4. close"];
+                  self.today_open = parseFloat(today_data["1. open"]).toFixed(2);
+                  self.today_close = parseFloat(today_data["4. close"]).toFixed(2);
+                  self.yesterday_close = parseFloat(yesterday_data["4. close"]).toFixed(2);
+                 
                   self.change = (self.today_close - self.yesterday_close).toFixed(2);
                   self.changePercent = (self.change / self.yesterday_close * 100).toFixed(2) + "%";
                   if (self.change >= 0){
@@ -292,10 +293,37 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              function showNews(data){
                 $log.info(data);
                 self.newsData = data;
+             };
+
+             self.favList = [];
+
+             function addSymbolToFav(){
+                var symbol = self.currentSymbol;
+                var price = self.today_close;
+                var change = self.change;
+                var changePercent = self.changePercent;
+                var changeStr = self.changeStr;
+                var volume = self.volume;
+                self.favList.push({
+                        'symbol' : symbol,
+                        'data' : {
+                            'price' : price,
+                            'change' : change,
+                            'changePercent' : changePercent,
+                            'changeStr' : changeStr,
+                            'volume' : volume
+                        }
+                    });
+             };
+
+             function removeSymbolFromFav(index){
+                self.favList.splice(index);
              }
 
+             
 
-             //Page Mulnipulation
+
+             //Page Malnipulation
              self.detailsNav = ["active",'',''];
              self.detailsDiv = [true,false,false];
              self.chartsNav = ["active",'','','','','','','',''];
@@ -384,6 +412,14 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 activeDetailsNav(2); 
                 activeDiv(2);
                 getNewsAPI();
+             }
+
+             $scope.addFav = function(){
+                 addSymbolToFav();
+             }
+
+             $scope.removeFav = function(index){
+                removeSymbolFromFav(index);
              }
 
              
@@ -893,6 +929,17 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                         <th>Volume</th>
                         <th></th>
                       </tr>
+                      <tr ng-repeat="item in ctrl.favList">
+                        <td>{{item["symbol"]}}</td>
+                        <td>{{item["data"]["price"]}}</td>
+                        <td ng-bind-html=item["data"]["changeStr"]></td>
+                        <td>{{item["data"]["volume"]}}</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="removeFav($index)">
+                                <span class="glyphicon glyphicon-trash"></span> 
+                            </button>
+                        </td>
+                      </tr>
                     </thead>
                   </table>
 
@@ -923,7 +970,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                       <div class="col-sm-6">
                         <span class="prompt-text">Stock Details</span>
                         <span class="align-right">
-                            <button type="button" class="btn btn-default btn-sm">
+                            <button type="button" class="btn btn-default btn-sm" ng-click="addFav()">
                                 <span class="glyphicon glyphicon-star-empty"></span>
                             </button>
                             <button type="button" class="btn btn-default btn-sm">
