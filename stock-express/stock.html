@@ -41,6 +41,7 @@
       background-color: #FFF;
       margin: 20px 0 20px 0;
       padding: 20px 0 30px 0;
+      overflow: hidden;
     }
     .form-control {
       display:inline-block;
@@ -98,6 +99,25 @@
         width: 150px;
     }
 
+    .slide-right.ng-hide-remove {
+        transform:translateX(100%);
+        transition: all 0.5s ease;
+    }
+
+    .slide-right.ng-hide-remove.ng-hide-remove-active {
+        transform: translateX(0);
+    }
+
+    .slide-left.ng-hide-remove {
+        transform:translateX(-100%);
+        transition: all 0.5s ease;
+    }
+
+    .slide-left.ng-hide-remove.ng-hide-remove-active {
+        transform: translateX(0);
+    }
+    
+
   </style>
 <!--
 http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png
@@ -112,7 +132,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
             const red_arrow_down = "http://cs-server.usc.edu:45678/hw/hw8/images/Down.png";  
 					  
               angular
-             .module('stockSearch', ['ngMaterial','ngSanitize'])
+             .module('stockSearch', ['ngMaterial','ngSanitize','ngAnimate'])
              .controller('stockController', stockController);
 
 
@@ -126,8 +146,8 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              self.selectedItemChange = selectedItemChange;
              self.searchTextChange   = searchTextChange;
              self.showWarning = false;
-            //self.quoteButtonEnabled = 'disabled';
-             self.quoteButtonEnabled = '';
+             self.quoteButtonEnabled = 'disabled';
+             //self.quoteButtonEnabled = '';
 
              function querySearch (query) {
                 if (filterSpace(query)){
@@ -179,6 +199,8 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
              function getStockAPI(){
                 resetButtons();
+                self.showDetails = true;
+                self.rightNavEnabled = '';
                 var apiURL = serverURL + "price\/" + self.searchText;
                 //var apiURL = serverURL + "price\/AAPL";
                 //$log.info(apiURL);
@@ -205,8 +227,12 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 self.showBar = true;
                 $http.get(url).success(
                     function(data){
-                      callback(data);
-                      
+                        $log.info(data);
+                        if (data == "Error"){
+                            $log.info("Error");   
+                        }else{
+                            callback(data);
+                        }
                     }
               );
              }
@@ -477,10 +503,13 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                self.selectedItem = null;
                self.searchText = '';
                self.quoteButtonEnabled = 'disabled';
+               self.showDetails = false;
              }
 
              $scope.getQuote = function(){
-               getStockAPI();               
+                 if (self.quoteButtonEnabled != 'disabled'){
+                    getStockAPI();
+                 }
              }
 
              $scope.drawPrice = function(){
@@ -518,7 +547,15 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
              $scope.addFav = function(){
                  if (self.favButtonEnabled != 'disabled'){
-                    addSymbolToFav();
+                    if (self.favButtonStyle == "glyphicon-star-empty"){
+                        addSymbolToFav();
+                    }else{
+                        
+                        var index = self.favList.indexOf(self.currentSymbol);
+                        removeSymbolFromFav(index);
+                        checkFavButton();
+                    }
+                    
                  }
              }
 
@@ -535,15 +572,15 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              self.autoRefreshFunc = '';
              self.enableAutoRefresh = false;
              $scope.toggleAutoRefresh = function(){
-                 $log.info("called");
+                 
                  self.enableAutoRefresh = !self.enableAutoRefresh;
                  if (self.enableAutoRefresh){
+                    $log.info("Start Auto Refresh");
                     self.autoRefreshFunc = $interval(updateFavList,5000);
                  }else{
+                    $log.info("Stop Auto Refresh");
                     $interval.cancel(self.autoRefreshFunc);
                  }
-                 
-                 $log.info(self.enableAutoRefresh);
              }
 
              self.favButtonEnabled = 'disabled';
@@ -664,11 +701,44 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                  changeOrder(orderby);
              }
 
+             self.rightNavEnabled = 'disabled';
              
-          }  
+             self.showDetails = false;
+
+             $scope.gotoList = function(){
+                self.showDetails = false;
+             }
+
+             $scope.gotoDetails = function(){
+                 if (self.rightNavEnabled != 'disabled'){
+                    self.showDetails = true;
+                 }
+             }
+
+             $scope.FBClick  = function(){     
+
+                 if (self.FBButtonEnabled != 'disabled'){
+                    highChartExport();
+
+                    FB.ui({
+                        app_id:	147477582512463,	
+                        method: 'feed',
+                        picture: 'http://cs-server.usc.edu:45678/hw/hw8/images/background.png',
+                        caption: 'Test',
+                    }, function(response){});
+                 }
+             }
+             
+          } 
+          
+          var currentChart = '';
+
+          function highChartExport(){
+              console.log(currentChart.exportChart());
+          }
 
           function highChartDrawPrice(symbol, parsed_dates,close_values,volume_values){
-            Highcharts.chart('chart-container', {
+            currentChart = Highcharts.chart('chart-container', {
                   chart :{
                     zoomType : 'x'
                   },
@@ -742,7 +812,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
 						var y_ticks = yIntervalHelper(x_data);
 						
-						Highcharts.chart('chart-container', {
+						currentChart = Highcharts.chart('chart-container', {
                             chart :{
                                 zoomType : 'x'
                             },
@@ -815,7 +885,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
 						var y_ticks = yIntervalHelper(x_data_0);
 						
-						Highcharts.chart('chart-container', {
+						currentChart = Highcharts.chart('chart-container', {
                             chart :{
                                 zoomType : 'x'
                             },
@@ -899,7 +969,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 						var y_ticks = yIntervalHelper(x_data_0);
 
 						
-						Highcharts.chart('chart-container', {
+						currentChart = Highcharts.chart('chart-container', {
                             chart :{
                                 zoomType : 'x'
                             },
@@ -1080,6 +1150,25 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 </head>
 <body ng-app="stockSearch"  ng-controller="stockController as ctrl" ng-cloak>
 
+        <script>
+                window.fbAsyncInit = function() {
+                  FB.init({
+                    appId            : 147477582512463,
+                    autoLogAppEvents : true,
+                    xfbml            : true,
+                    version          : 'v2.11'
+                  });
+                };
+              
+                (function(d, s, id){
+                   var js, fjs = d.getElementsByTagName(s)[0];
+                   if (d.getElementById(id)) {return;}
+                   js = d.createElement(s); js.id = id;
+                   js.src = "https://connect.facebook.net/en_US/sdk.js";
+                   fjs.parentNode.insertBefore(js, fjs);
+                 }(document, 'script', 'facebook-jssdk'));
+        </script>
+    
 
 <div class="container">
   <div class="row round-corner bg-white">
@@ -1127,7 +1216,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
   <hr>
 
   <div class='row round-corner bg-white'>
-            <div class='panel panel-default panel-margin' id='list-panel'>
+            <div class='panel panel-default panel-margin slide-right' id='list-panel' ng-show="!ctrl.showDetails">
                 <div class='panel-heading'>
                   <span class='prompt-text'>Favorite List</span>
                   <span class='align-right'>
@@ -1136,7 +1225,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                     <button type="button" id="refresh-button" class="btn btn-default btn-sm" ng-click="refreshFavList()">
                         <span class="glyphicon glyphicon-refresh"></span>
                     </button>
-                    <button type="button" class="btn btn-default btn-sm">
+                    <button type="button" class="btn btn-default btn-sm  {{ctrl.rightNavEnabled}}" ng-click="gotoDetails()">
                         <span class="glyphicon glyphicon glyphicon-menu-right"></span>
                     </button>
                   </span>
@@ -1192,10 +1281,10 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               
             </div>
 
-            <div class='panel panel-default panel-margin' id='details-panel'>
+            <div class='panel panel-default panel-margin slide-left' id='details-panel' ng-show="ctrl.showDetails">
               <div class='panel-heading'>
                 <div class='align-left'>
-                    <button type="button" class="btn btn-default btn-sm">
+                    <button type="button" class="btn btn-default btn-sm" ng-click="gotoList()">
                         <span class="glyphicon glyphicon-menu-left"></span>
                     </button>
                   </div>
@@ -1204,9 +1293,9 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
               </div>
               <div class='panel-body'>
                   <ul class="nav nav-pills">
-                      <li role="presentation" class="{{ctrl.detailsNav[0]}}"><a ng-click="switchCurrentStock()"><span class="glyphicon glyphicon-dashboard"></span> Current Stock</a></li>
-                      <li role="presentation" class="{{ctrl.detailsNav[1]}}"><a ng-click="switchHistoricalChart()"><span class="glyphicon glyphicon-stats"></span> Historical Charts</a></li>
-                      <li role="presentation" class="{{ctrl.detailsNav[2]}}"><a ng-click="switchNews()"><span class="glyphicon glyphicon-link"></span>News Feeds</a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[0]}}"><a ng-click="switchCurrentStock()"><span class="glyphicon glyphicon-dashboard"></span> <span class="hidden-xs">Current Stock</span> <span class="hidden-sm hidden-md hidden-lg">Stock</span></a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[1]}}"><a ng-click="switchHistoricalChart()"><span class="glyphicon glyphicon-stats"></span> <span class="hidden-xs">Historical Charts</span> <span class="hidden-sm hidden-md hidden-lg">Charts</span></a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[2]}}"><a ng-click="switchNews()"><span class="glyphicon glyphicon-link"></span><span class="hidden-xs">News Feed</span> <span class="hidden-sm hidden-md hidden-lg">News</span></a></li>
                   </ul>
 
                   <hr>
@@ -1218,7 +1307,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                             <button type="button" id="favBubutton" class="btn btn-default btn-sm {{ctrl.favButtonEnabled}}" ng-click="addFav()">
                                 <span class="glyphicon {{ctrl.favButtonStyle}}"></span>
                             </button>
-                            <button type="button" class="btn btn-default btn-sm">
+                            <button type="button" class="btn btn-default btn-sm {{ctrl.FBButtonEnabled}}" ng-click="FBClick()">
                                 <img src="http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png" height="20px">
                             </button>
 

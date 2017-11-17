@@ -22,9 +22,20 @@ app.get('/pricefast/:symbol',getPriceFast);
 app.get('/indicator/:symbol/:ind',getIndicator);
 app.get('/news/:symbol',getNews);
 
-app.listen(8000, function () {
-  console.log('Listening on port 8000!')
+var debug = false;
+
+
+var port = 0;
+if (debug){
+	port = 8000;
+}else{
+	port = process.env.PORT || 3000
+}
+
+app.listen(port, function () {
+  console.log('Listening on ' + port);
 })
+
 
 function autoComplete(req,res){
 	var symbol = req.params.symbol;
@@ -38,8 +49,11 @@ function getPriceFast(req,res){
 	var alpha_url =  alpha_base_url + symbol + "&apikey=" + alpha_api_key;
 	console.log(alpha_url);
 
-	//fetchData(https,res,alpha_url,parsePriceFast);
-	readFile(res,symbol + "fast.json",echoJSON);
+	if (debug){
+		readFile(res,symbol + "fast.json",echoJSON);
+	}else{
+		fetchData(https,res,alpha_url,parsePriceFast);
+	}
 }
 
 function getPrice(req,res){
@@ -49,9 +63,11 @@ function getPrice(req,res){
 	var alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
 	console.log(alpha_url);
 
-	
-	readFile(res,symbol + ".json",echoJSON);
-	//fetchData(https,res,alpha_url,echoJSON);
+	if (debug){
+		readFile(res,symbol + ".json",parsePrice);
+	}else{
+		fetchData(https,res,alpha_url,parsePrice);
+	}
 }
 
 function getIndicator(req,res){
@@ -89,7 +105,12 @@ function readFile(res,filename,callback){
 }
 
 function autoCompleteParse(res, json){
-	json = JSON.parse(json);
+	try{
+		json = JSON.parse(json);
+	}catch (e){
+		replyError(res);
+		return;
+	}
 	var result = [];
 	for (var i in json){
 		var item = {'value' : json[i].Symbol, 'display' : json[i].Symbol + ' - ' + json[i].Name + ' (' + json[i].Exchange +')'};
@@ -100,6 +121,18 @@ function autoCompleteParse(res, json){
 
 function replyError(res){
 	res.send("Error");
+}
+
+function parsePrice(res,json){
+	try{
+		json = JSON.parse(json);
+	}catch (e){
+		replyError(res);
+		return;
+	}
+
+	res.send(json);
+
 }
 
 function parsePriceFast(res,json){
