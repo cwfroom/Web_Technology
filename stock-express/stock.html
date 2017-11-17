@@ -86,6 +86,18 @@
         color: gold;
     }
 
+    .progress-container{
+        margin: 100px 0 100px 0;
+    }
+
+    .little-space{
+        margin-right: 20px;
+    }
+
+    .sort-button{
+        width: 150px;
+    }
+
   </style>
 <!--
 http://cs-server.usc.edu:45678/hw/hw8/images/facebook.png
@@ -167,8 +179,8 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
              function getStockAPI(){
                 resetButtons();
-                //var apiURL = serverURL + "price\/" + self.searchText;
-                var apiURL = serverURL + "price\/AAPL";
+                var apiURL = serverURL + "price\/" + self.searchText;
+                //var apiURL = serverURL + "price\/AAPL";
                 //$log.info(apiURL);
                 getJSON(apiURL,parsePrice);
              }
@@ -184,20 +196,23 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              }
 
              function getNewsAPI(){
-                 //var apiURL = serverURL + "news\/" + self.currentSymbol;
-                var apiURL = serverURL + "news\/AAPL";
+                var apiURL = serverURL + "news\/" + self.currentSymbol;
+                //var apiURL = serverURL + "news\/AAPL";
                 getJSON(apiURL,showNews);    
             }
 
              function getJSON(url,callback){
+                self.showBar = true;
                 $http.get(url).success(
                     function(data){
                       callback(data);
+                      
                     }
               );
              }
 
             function parsePrice(data){
+                  self.showBar = false;  
                   var meta_data = data["Meta Data"];
                   self.time_series = data["Time Series (Daily)"];
                   
@@ -269,6 +284,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              }
 
              function drawIndicatorChart(data){
+                self.showBar = false;
                 if (self.currentIndLines == 1){
                     drawSingleLineChart(data,self.currentSymbol,self.currentInd,self.parsed_dates);
                 }else if(self.currentIndLines == 2){
@@ -299,11 +315,36 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
              self.newsData = [];
 
              function showNews(data){
-                $log.info(data);
+                self.showBar = false;
                 self.newsData = data;
              };
 
              self.favList = [];
+             //For test soring functionality
+             /*
+             self.favList = [
+                {
+                    symbol : "B",
+                    data : {
+                        price : "10",
+                        change : "2",
+                        changePercent : "2",
+                        changeStr : "2 (2)",
+                        volume : "100"
+                    }
+                },
+                {
+                    symbol : "A",
+                    data : {
+                        price : "20",
+                        change : "10",
+                        changePercent : "5",
+                        changeStr : "10 (5)",
+                        volume : "300"
+                    }
+                }
+             ]
+             */
 
              function addSymbolToFav(){
                 for (var i = 0;i < self.favList.length;i++){
@@ -351,6 +392,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
 
              function parsePriceFast(data){
+                self.showBar = false;
                 var symbol = data["symbol"];
                 for (var i = 0;i < self.favList.length;i++){
                     if (self.favList[i]["symbol"] == symbol){
@@ -409,7 +451,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 }
             }
 
-            
+            self.showBar = true;
 
              //Helpers
              function filterSpace(text){
@@ -524,7 +566,103 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 self.favButtonStyle = 'glyphicon-star-empty';
              }
 
+             self.sortby = 'Default';
+             self.sortbyDisplay = 'Default';
+             self.orderby = 'Ascending';
 
+             self.orderbyEnabled = 'disabled';
+             self.defaultOrder = '';
+
+             function changeSort(display,sortby){
+                if (self.favList.length == 0){
+                    return;
+                }
+
+                if (self.sortby == "Default" && sortby != "Default"){
+                    self.defaultOrder = self.favList;
+                }
+
+                self.sortbyDisplay = display;
+                self.sortby = sortby;
+                
+                if (self.sortbyDisplay == 'Default'){
+                    self.favList = self.defaultOrder;
+                    self.orderbyEnabled = 'disabled';    
+                }else{
+                    self.orderbyEnabled = '';
+                    updateSort();
+                }
+             }
+
+             function updateSort(){
+                if (self.sortby == "symbol"){
+                    sortBySymbol();
+                }else{
+                    sortByValue();
+                }
+             }
+
+             function changeOrder(orderby){
+                if (self.favList.length == 0){
+                    return;
+                }
+                self.orderby = orderby;
+                updateSort();
+            }
+
+             function sortBySymbol(){
+                if (self.orderby == "Ascending"){
+                    self.favList.sort(function(a,b){
+                        var a_symbol = a["symbol"];
+                        var b_symbol = b["symbol"];
+                        if (a_symbol < b_symbol){
+                            return -1;
+                        }
+                        if (a_symbol > b_symbol){
+                            return 1;
+                        }        
+                        return 0;
+                    });
+                }else{
+                    self.favList.sort(function(a,b){
+                        var a_symbol = a["symbol"];
+                        var b_symbol = b["symbol"];
+                        if (a_symbol > b_symbol){
+                            return -1;
+                        }
+                        if (a_symbol < b_symbol){
+                            return 1;
+                        }        
+                        return 0;
+                    });
+                }
+             }
+
+             function sortByValue(){
+                var orderby = self.orderby;
+
+                if (self.orderby == "Ascending"){
+                    self.favList.sort(function(a,b){
+                        var a_data = parseFloat(a["data"][self.sortby].replace(/,/g, ""));
+                        var b_data = parseFloat(b["data"][self.sortby].replace(/,/g, ""));
+                        return a_data - b_data;
+                    });
+                }else{
+                    self.favList.sort(function(a,b){
+                        var a_data = parseFloat(a["data"][self.sortby].replace(/,/g, ""));
+                        var b_data = parseFloat(b["data"][self.sortby].replace(/,/g, ""));
+                        return b_data - a_data;
+                    });
+                }
+             }
+
+             $scope.changeSortBy = function(display,sortby){
+                changeSort(display,sortby);
+             }
+
+             $scope.changeOrderBy = function(orderby){
+                 changeOrder(orderby);
+             }
 
              
           }  
@@ -1006,22 +1144,25 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                 </div>
                 <div class='panel-body'>
                   <div class="col-sm-3">
-                      <span class='prompt-text'>Sort by</span>
-                      <select>
-                        <option>Default</option>
-                        <option>Symbol</option>
-                        <option>Price</option>
-                        <option>Change</option>
-                        <option>Change Percent</option>
-                        <option>Volume</option>
-                      </select>
-                  </div>
+                      <span class='prompt-text little-space'>Sort by</span>
+                      <button type="button" class="btn btn-default dropdown-toggle sort-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ctrl.sortbyDisplay}} <span class="caret"></span></button>
+                      <ul class="dropdown-menu">
+                        <li><a ng-click='changeSortBy("Default","Default")'>Default</a></li>
+                        <li><a ng-click='changeSortBy("Symbol","symbol")'>Symbol</a></li>
+                        <li><a ng-click='changeSortBy("Price","price")'>Price</a></li>
+                        <li><a ng-click='changeSortBy("Change","change")'>Change</a></li>
+                        <li><a ng-click='changeSortBy("Change Percent","changePercent")'>Change Percent</a></li>
+                        <li><a ng-click='changeSortBy("Volume","volume")'>Volume</a></li>
+                    </ul>
+                      </div>
                   <div class="col-sm-3">
-                      <span class='prompt-text'>Order</span>
-                      <select>
-                        <option>Ascending</option>
-                        <option>Descending</option>
-                      </select>
+                        <span class='prompt-text little-space'>Order by</span>
+                        <button type="button" class="btn btn-default dropdown-toggle sort-button {{ctrl.orderbyEnabled}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ctrl.orderby}} <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                          <li><a ng-click='changeOrderBy("Ascending")'>Ascending</a></li>
+                          <li><a ng-click='changeOrderBy("Descending")'>Descending</a></li>
+                      </ul>
+                        
                   </div>
 
                   <table class="table table-striped" class="col-sm-12">
@@ -1069,7 +1210,7 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                   </ul>
 
                   <hr>
-
+                  
                     <div id="currentDetails" ng-show="ctrl.detailsDiv[0]">
                       <div class="col-sm-6">
                         <span class="prompt-text">Stock Details</span>
@@ -1083,7 +1224,19 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
 
                         </span>
                         
-                      <table class="table table-striped">
+
+                        <br>
+
+                    <div class="progress-container" ng-show="ctrl.showBar" >
+                            <div class="progress">
+                                    <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                    aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                            </div>
+                            </div>    
+                    </div>   
+                    
+                    
+                      <table class="table table-striped" ng-show="!ctrl.showBar">
                         <tr>
                           <td class="prompt-text">Stock Ticker Symbol</td>
                           <td>{{ctrl.currentSymbol}}</td>
@@ -1135,14 +1288,40 @@ http://cs-server.usc.edu:45678/hw/hw8/images/Down.png
                               <li role="presentation" class="{{ctrl.chartsNav[8]}}"><a ng-click='drawIndicator("MACD",3,8)'>MACD</a></li>
                           </ul>
 
-                          <div id="chart-container"></div>
+                          <div class="progress-container"ng-show="ctrl.showBar" >
+                                <div class="progress">
+                                        <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                        aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                                </div>
+                                </div>    
+                        </div>   
+
+                          <div id="chart-container" ng-show="!ctrl.showBar"></div>
                       </div>
                     </div>
 
-                    <div id="historical-chart-container" class="col-sm-12" ng-show="ctrl.detailsDiv[1]"></div>
+                    <div id="historical-container" class="col-sm-12" ng-show="ctrl.detailsDiv[1]">
+                            <div class="progress-container"ng-show="ctrl.showBar" >
+                                    <div class="progress">
+                                            <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                                    </div>
+                                    </div>    
+                            </div>   
+                            <div id="historical-chart-container" ng-show="!ctrl.showBar"></div>
+                    </div>
+                    
 
                     <div id="news-container" ng-show="ctrl.detailsDiv[2]">
-                        <div class="well" ng-repeat="news in ctrl.newsData">
+                        <div class="progress-container" ng-show="ctrl.showBar" >
+                                <div class="progress">
+                                        <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                        aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                                </div>
+                                </div>    
+                        </div>   
+
+                        <div class="well" ng-repeat="news in ctrl.newsData" ng-show="!ctrl.showBar">
                             <div class="news-title"><a href={{news["link"]}} target="_blank">{{news["title"]}}</a></div><br>
                             <div class="prompt-text">Author: {{news["author"]}}</div><br>
                             <div class="prompt-text">Date: {{news["date"]}}</div>
