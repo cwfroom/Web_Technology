@@ -3,6 +3,8 @@
 		<title>JSON Airlines</title>
 
 		<script type="text/javascript">
+		const imgPath = window.location.href + "/images/";
+
 		function loadJSON(url) {
 			var xmlhttp;
 			if (window.XMLHttpRequest) {
@@ -83,7 +85,7 @@
 					
 					html_text += "<td>" + verifyValue(airlineIter[headers[3]]) + "</td>";
 					html_text += "<td><a href=\"" + verifyValue(airlineIter[headers[4]]) + "\" >" + verifyValue(airlineIter.HomePage) + "</a></td>";
-					html_text += "<td><img src=\"" + verifyValue(airlineIter[headers[5]]) + "\" width=200 ></td>";
+					html_text += "<td><img src=\"" + imgPath + verifyValue(airlineIter[headers[5]]) + "\" width=200 ></td>";
 
 					html_text += "</tr>";
 					}
