@@ -79,7 +79,7 @@
 				height: 450px;
 				margin: auto;
 			}
-			.bule-anchor{
+			.blue-anchor{
 				color: #0000ff;
 				text-decoration: none;
 			}
@@ -132,14 +132,12 @@
 
 			function constructJSONurl(ind){
 				var ind_url = "https://www.alphavantage.co/query?function=" + ind + "&symbol=" + document.getElementById("queryText").value + "&interval=daily&time_period=10&series_type=close&apikey=QUEJMT41CEQTOAWN";
-				//console.log("Loading " + ind_url);
 				return ind_url;
 			}
 
 			function loadSMAChart(){
 				var sma_url = constructJSONurl("SMA");
 				loadJSON(sma_url,drawSingleLineChart, "SMA");
-				//loadJSON("SMA.json",drawSingleLineChart);
 			}
 
 			function loadEMAChart(){
@@ -170,7 +168,6 @@
 			function loadBBANDSChart(){
 				var bbans_chart = constructJSONurl("BBANDS");
 				loadJSON(bbans_chart,drawTripleLineChart, "BBANDS");
-				//loadJSON("BBANDS.json",drawTripleLineChart);
 			}
 
 			function loadMACDChart(){
@@ -226,9 +223,6 @@
 				$alpha_base_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY";
 				$alpha_api_key = "QUEJMT41CEQTOAWN";
 				$alpha_url = $alpha_base_url."&symbol=".$query."&outputsize=full&apikey=".$alpha_api_key;
-				//echo $alpha_url;
-				//Local file for faster loading
-				//$alpha_url = "alpha.json";
 				
 				$alpha_json = @file_get_contents($alpha_url);
 				
@@ -259,8 +253,8 @@
 					$today_data = $time_series[$date_keys[0]];
 					$yesterday_data = $time_series[$date_keys[1]];
 
-					$green_arrow_up = "http://cs-server.usc.edu:45678/hw/hw6/images/Green_Arrow_Up.png"; 
-					$red_arrow_down =  "http://cs-server.usc.edu:45678/hw/hw6/images/Red_Arrow_Down.png";
+					$green_arrow_up = "images/Green_Arrow_Up.png"; 
+					$red_arrow_down =  "images/Red_Arrow_Down.png";
 				?>
 
 				<table  class="resultTable">
@@ -359,8 +353,7 @@
 					$last_day = $last_date_split[2];
 					
 					$title_date = $last_month."/".$last_day."/".$last_year;
-
-					///for ($i = 0;$i<130;$i++){					
+				
 					for ($i = 0;$i<count($date_keys);$i++){
 						$a_day = $time_series[$date_keys[$i]];
 						$current_date_split = explode("-",$date_keys[$i]);
@@ -404,7 +397,6 @@
 					for ($i = 0;$i<8;$i++){
 						array_push($left_tickers,$close_value_min + $left_interval * $i );
 					}
-					//$close_value_max += $margin;
 				
 					$right_interval = ceil($volume_value_min) * 5;
 					$right_tickers = [];
@@ -436,7 +428,7 @@
 					            text: '<span style=\"font-size:14px\">Stock Price (' + "<?php echo $title_date ?>" + ")</span>",
 					        },
 					        subtitle:{
-					        	text : '<a href="https://www.alphavantage.co/" class="bule-anchor" target="_blank">Source: Alpha Advantage</a>',
+					        	text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
 					        	useHTML : true
 					        },
 					        tooltip: {
@@ -513,18 +505,6 @@
 						result.push(max);
 
 						return result;
-
-						/*
-						var interval = Math.floor( (max-min) /5);
-						min = Math.floor(min);
-						min -= interval;
-						var result = [];
-						for (var i=0;i<8;i++){
-							result.push(min + interval * i);
-						}
-
-						return result;
-						*/
 					}
 
 					function drawSingleLineChart(data_json, acry){
@@ -547,7 +527,7 @@
 					            text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
 					        },
 					        subtitle:{
-					     		text : '<a href="https://www.alphavantage.co/" class="bule-anchor" target="_blank">Source: Alpha Advantage</a>',
+					     		text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
 					        	useHTML : true
 					        },
 					        xAxis: {					        	
@@ -618,7 +598,7 @@
 					            text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
 					        },
 					        subtitle:{
-					        	text : '<a href="https://www.alphavantage.co/" class="bule-anchor" target="_blank">Source: Alpha Advantage</a>',
+					        	text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
 					        	useHTML : true
 					        },
 					        xAxis: {					        	
@@ -700,7 +680,7 @@
 					            text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
 					        },
 					        subtitle:{
-					        	text : '<a href="https://www.alphavantage.co/" class="bule-anchor" target="_blank">Source: Alpha Advantage</a>',
+					        	text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
 					        	useHTML : true
 					        },
 					        xAxis: {					        	
@@ -777,8 +757,6 @@
 
 				<?php
 					$news_url = "https://seekingalpha.com/api/sa/combined/".$query.".xml";
-					//echo $news_url;
-					//$news_url = "AAPL.xml";
 
 					$news_xml_object = simplexml_load_string(file_get_contents($news_url));
 					
@@ -818,14 +796,14 @@
 				<div class="showHideNews" id="showNews">
 					<ul>
 						<li><a href="javascript:showNews()">click to show stock news</a></li>
-						<li><a href="javascript:showNews()"><img src="http://cs-server.usc.edu:45678/hw/hw6/images/Gray_Arrow_Down.png"></a></li>
+						<li><a href="javascript:showNews()"><img src="images/Gray_Arrow_Down.png"></a></li>
 					</ul>					
 				</div>
 
 				<div class="showHideNews" id="hideNews">
 					<ul>
 						<li><a href="javascript:hideNews()">click to hide stock news</a></li>
-						<li><a href="javascript:hideNews()"><img src="http://cs-server.usc.edu:45678/hw/hw6/images/Gray_Arrow_Up.png"></a></li>
+						<li><a href="javascript:hideNews()"><img src="images/Gray_Arrow_Up.png"></a></li>
 					</ul>					
 				</div>
 
