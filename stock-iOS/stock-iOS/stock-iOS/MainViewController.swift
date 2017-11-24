@@ -15,6 +15,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     let sortByData = ["Default","Symbol","Price","Change","Percent"];
     let orderByData = ["Ascending","Desceding"];
     
+    var data = StockData.sharedInstance;
+
+    //UIPickerView
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1;
     }
@@ -29,7 +32,6 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         }
     }
     
-    
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         if (pickerView == self.sortbyPicker){
             return sortByData[row];
@@ -39,8 +41,6 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             return "";
         }
     }
- 
- 
  
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = view as! UILabel!
@@ -60,18 +60,27 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         return label!;
         
     }
-    
-    
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        //Pickers
         self.sortbyPicker.delegate = self;
         self.sortbyPicker.dataSource = self;
         self.orderbyPicker.delegate = self;
         self.orderbyPicker.dataSource = self;
-        //initializePickers();
+       
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(true, animated: animated);
+        super.viewWillAppear(animated);
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        self.navigationController?.setNavigationBarHidden(false, animated: animated)
+        super.viewWillDisappear(animated)
     }
 
     override func didReceiveMemoryWarning() {
@@ -79,10 +88,11 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         // Dispose of any resources that can be recreated.
     }
     
-    func initializePickers(){
+    
+    @IBAction func getQuoteButtonTouch(_ sender: Any) {
+        performSegue(withIdentifier: "showDetails", sender: sender);
         
     }
-    
     
 
 

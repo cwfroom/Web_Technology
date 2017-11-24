@@ -14,6 +14,8 @@
 		914D0F4F1FC2D34F00855368 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 914D0F4D1FC2D34F00855368 /* LaunchScreen.storyboard */; };
 		914D0F5A1FC2D35100855368 /* stock_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914D0F591FC2D35100855368 /* stock_iOSTests.swift */; };
 		914D0F651FC2D35100855368 /* stock_iOSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914D0F641FC2D35100855368 /* stock_iOSUITests.swift */; };
+		918EA2471FC6D312002EDEFC /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 918EA2461FC6D312002EDEFC /* DetailsViewController.swift */; };
+		918EA2491FC7974C002EDEFC /* StockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 918EA2481FC7974C002EDEFC /* StockData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +49,8 @@
 		914D0F601FC2D35100855368 /* stock-iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "stock-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		914D0F641FC2D35100855368 /* stock_iOSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stock_iOSUITests.swift; sourceTree = "<group>"; };
 		914D0F661FC2D35100855368 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		918EA2461FC6D312002EDEFC /* DetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
+		918EA2481FC7974C002EDEFC /* StockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,10 +103,12 @@
 			children = (
 				914D0F441FC2D34F00855368 /* AppDelegate.swift */,
 				914D0F461FC2D34F00855368 /* MainViewController.swift */,
+				918EA2461FC6D312002EDEFC /* DetailsViewController.swift */,
 				914D0F481FC2D34F00855368 /* Main.storyboard */,
 				914D0F4B1FC2D34F00855368 /* Assets.xcassets */,
 				914D0F4D1FC2D34F00855368 /* LaunchScreen.storyboard */,
 				914D0F501FC2D35000855368 /* Info.plist */,
+				918EA2481FC7974C002EDEFC /* StockData.swift */,
 			);
 			path = "stock-iOS";
 			sourceTree = "<group>";
@@ -259,8 +265,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				918EA2491FC7974C002EDEFC /* StockData.swift in Sources */,
 				914D0F471FC2D34F00855368 /* MainViewController.swift in Sources */,
 				914D0F451FC2D34F00855368 /* AppDelegate.swift in Sources */,
+				918EA2471FC6D312002EDEFC /* DetailsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
