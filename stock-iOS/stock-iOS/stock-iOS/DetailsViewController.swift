@@ -10,7 +10,8 @@ import UIKit
 
 class DetailsViewController: UIViewController {
 
-    //@IBOutlet weak var navItem: UINavigationItem!
+    @IBOutlet weak var segControl: UISegmentedControl!
+    
     let data = StockData.sharedInstance;
     
     @objc func back(){
@@ -19,11 +20,94 @@ class DetailsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        /*
-        let backButton : UIBarButtonItem = UIBarButtonItem(title:"Back",style:.done,target:self,action:#selector(back));
-        navItem.leftBarButtonItem = backButton;
-        */
+        
+        segControl.addTarget(self,action: #selector(selectionDidChange(_:)), for: .valueChanged);
+        segControl.selectedSegmentIndex = 0;
+        
     }
+    
+    @objc func selectionDidChange(_ sender: UISegmentedControl) {
+        if (segControl.selectedSegmentIndex == 0){
+            remove(asChildViewController: historicalViewController);
+            remove(asChildViewController: newsViewController);
+            add(asChildViewController: currentViewController);
+        }else if (segControl.selectedSegmentIndex == 1){
+            remove(asChildViewController: currentViewController);
+            remove(asChildViewController: newsViewController);
+            add(asChildViewController: historicalViewController);
+        }else if (segControl.selectedSegmentIndex == 2){
+            remove(asChildViewController: currentViewController);
+            remove(asChildViewController: historicalViewController);
+            add(asChildViewController: newsViewController);
+        }
+    }
+    
+    private lazy var currentViewController: CurrentViewController = {
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main);
+        
+        var viewController = storyboard.instantiateViewController(withIdentifier: "CurrentViewController") as! CurrentViewController
+        
+        // Add View Controller as Child View Controller
+        self.add(asChildViewController: viewController)
+        
+        return viewController
+    }()
+    
+    private lazy var historicalViewController: HistoricalViewController = {
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main);
+        
+        var viewController = storyboard.instantiateViewController(withIdentifier: "HistoricalViewController") as! HistoricalViewController
+        
+        self.add(asChildViewController: viewController)
+        return viewController
+    }()
+    
+    private lazy var newsViewController: NewsViewController = {
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main);
+        
+        var viewController = storyboard.instantiateViewController(withIdentifier: "NewsViewController") as! NewsViewController
+        
+        self.add(asChildViewController: viewController)
+        return viewController
+    }()
+    
+    
+    
+    
+    private func add(asChildViewController viewController: UIViewController) {
+        addChildViewController(viewController)
+        
+        // Add Child View as Subview
+        view.addSubview(viewController.view)
+        
+        // Configure Child View
+        //viewController.view.frame = view.bounds
+        //viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        viewController.view.translatesAutoresizingMaskIntoConstraints = false;
+        
+        let verticalConstraint = NSLayoutConstraint(item: viewController.view, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.segControl, attribute: NSLayoutAttribute.bottom, multiplier: 1, constant: 10);
+        let horizontalConstraint = NSLayoutConstraint(item: viewController.view, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: view, attribute: NSLayoutAttribute.centerX, multiplier: 1, constant: 0)
+        
+        view.addConstraint(verticalConstraint);
+        view.addConstraint(horizontalConstraint);
+
+        // Notify Child View Controller
+        viewController.didMove(toParentViewController: self)
+    }
+    
+    
+    private func remove(asChildViewController viewController: UIViewController) {
+        // Notify Child View Controller
+        viewController.willMove(toParentViewController: nil)
+        
+        // Remove Child View From Superview
+        viewController.view.removeFromSuperview()
+        
+        // Notify Child View Controller
+        viewController.removeFromParentViewController()
+    }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -31,10 +115,10 @@ class DetailsViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        data.updateData();
         self.navigationItem.title = data.currentSymbol;
         super.viewWillAppear(animated);
     }
-    
 
     /*
     // MARK: - Navigation

@@ -98,7 +98,12 @@ function getIndicator(req,res){
 function getNews(req,res){
 	var symbol = req.params.symbol;
 	var news_url = "https://seekingalpha.com/api/sa/combined/" + symbol + ".xml";
-	fetchData(https,res,news_url,parseNews);
+	if (debug){
+		readFile(res,'/debug/AAPL.xml',parseNews);
+	}else{
+		fetchData(https,res,news_url,parseNews);
+	}
+	
 }
 
 function fetchData(protocal, res, url,callback){
@@ -139,15 +144,81 @@ function replyError(res){
 	res.send("Error");
 }
 
-function parsePrice(res,json){
+function parsePrice(res,data){
 	try{
-		json = JSON.parse(json);
+		data = JSON.parse(data);
 	}catch (e){
 		replyError(res);
 		return;
 	}
 
-	res.send(json);
+	var result = {};
+	var series = [];
+
+	var meta_data = data["Meta Data"];
+	var time_series = data["Time Series (Daily)"];
+	var date_keys = Object.keys(time_series);
+	var today_data = time_series[date_keys[0]];
+	var yesterday_data = time_series[date_keys[1]];
+
+	var currentSymbol = meta_data["2. Symbol"];
+	var today_open = parseFloat(today_data["1. open"]).toFixed(2);
+	var today_close = parseFloat(today_data["4. close"]).toFixed(2);
+	var yesterday_close = parseFloat(yesterday_data["4. close"]).toFixed(2);
+   
+	var change = (today_close - yesterday_close).toFixed(2);
+	var changePercent = (change / yesterday_close * 100).toFixed(2) + "%";
+	
+	var range = today_data["3. low"] + "-" + today_data["2. high"];
+	var timestamp = moment(meta_data["3. Last Refreshed"]).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss z'); 
+	var volume = today_data["5. volume"];
+	
+	result['table'] = {
+		'symbol' : currentSymbol,
+		'last_price' : today_close,
+		'change' : change,
+		'change_percet' : changePercent,
+		'timestamp' : timestamp,
+		'open' : today_open,
+		'close' : yesterday_close,
+		'range' : range,
+		'volume' : volume
+		
+	};
+
+	var today_date = date_keys[0];
+	var today_date_split = today_date.split("-");
+	var current_month = today_date_split[1];
+	var current_day = today_date_split[2];
+
+	for (var i in date_keys){
+	  var i_date = date_keys[i];
+	  var i_date_split = i_date.split("-");
+	  var i_month = i_date_split[1];
+	  var i_day = i_date_split[2];
+
+	  var i_item = time_series[i_date];
+
+	  var i_parsed_date = i_month + "/" + i_day;
+	  var i_close = parseFloat(i_item["4. close"]).toFixed(2);
+	  var i_volume = parseFloat(i_item["5. volume"]).toFixed(2);
+
+	  series.push({
+		  [i_parsed_date] :{
+				'price' : i_close,
+				'volume' : i_volume
+			}
+		}
+	  )
+	  if (i_month == current_month-6 && i_day <= current_day && (i % 5) ==0){
+		break;
+	  }
+	}
+
+	series.reverse();
+	result['series'] = series;
+	
+	res.send(result);
 
 }
 
