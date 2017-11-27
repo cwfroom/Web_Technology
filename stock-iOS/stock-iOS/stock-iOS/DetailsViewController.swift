@@ -26,11 +26,15 @@ class DetailsViewController: UIViewController {
         add(asChildViewController: currentViewController);
         
          let anyGesture = UITapGestureRecognizer(target: self, action: #selector(self.getGesture(_:)));
+        anyGesture.cancelsTouchesInView = false;
         self.view.addGestureRecognizer(anyGesture);
     }
     
     @objc func getGesture(_ recognizer : UIGestureRecognizer){
-        if (segControl.selectedSegmentIndex == 2){
+       
+        if (segControl.selectedSegmentIndex == 1){
+            //historicalViewController.handleGesture(recognizer);
+        }else if (segControl.selectedSegmentIndex == 2){
             newsViewController.handleGesture(recognizer);
         }
     }
@@ -95,12 +99,17 @@ class DetailsViewController: UIViewController {
         
         viewController.view.translatesAutoresizingMaskIntoConstraints = false;
         
-        let verticalConstraint = NSLayoutConstraint(item: viewController.view, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.segControl, attribute: NSLayoutAttribute.bottom, multiplier: 1, constant: 10);
+        let verticalConstraint = NSLayoutConstraint(item: viewController.view, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.segControl, attribute: NSLayoutAttribute.bottom, multiplier: 1, constant: 5);
         let horizontalConstraint = NSLayoutConstraint(item: viewController.view, attribute: NSLayoutAttribute.centerX, relatedBy: NSLayoutRelation.equal, toItem: view, attribute: NSLayoutAttribute.centerX, multiplier: 1, constant: 0)
+        
+        let widthConstraint = NSLayoutConstraint(item: viewController.view, attribute: NSLayoutAttribute.width, relatedBy: NSLayoutRelation.equal, toItem: view, attribute: NSLayoutAttribute.width, multiplier: 1, constant: 0)
+        let heightConstraint = NSLayoutConstraint(item: viewController.view, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: view, attribute: NSLayoutAttribute.height, multiplier: 1, constant: 0)
+        
         
         view.addConstraint(verticalConstraint);
         view.addConstraint(horizontalConstraint);
-
+        view.addConstraint(widthConstraint);
+        view.addConstraint(heightConstraint);
         // Notify Child View Controller
         viewController.didMove(toParentViewController: self)
     }

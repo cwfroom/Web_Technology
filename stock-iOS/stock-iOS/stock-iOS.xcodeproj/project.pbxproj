@@ -19,6 +19,7 @@
 		918EEC431FC8E5220068471C /* CurrentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 918EEC421FC8E5220068471C /* CurrentViewController.swift */; };
 		918EEC451FC8E5860068471C /* HistoricalViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 918EEC441FC8E5860068471C /* HistoricalViewController.swift */; };
 		918EEC491FC8F8960068471C /* NewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 918EEC481FC8F8960068471C /* NewsViewController.swift */; };
+		91B4B42C1FCCA13E004D4897 /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 91B4B42B1FCCA13E004D4897 /* test.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		918EEC421FC8E5220068471C /* CurrentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentViewController.swift; sourceTree = "<group>"; };
 		918EEC441FC8E5860068471C /* HistoricalViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalViewController.swift; sourceTree = "<group>"; };
 		918EEC481FC8F8960068471C /* NewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsViewController.swift; sourceTree = "<group>"; };
+		91B4B42B1FCCA13E004D4897 /* test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = test.html; path = "stock-iOS/html/test.html"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 		914D0F381FC2D34F00855368 = {
 			isa = PBXGroup;
 			children = (
+				91B4B42B1FCCA13E004D4897 /* test.html */,
 				914D0F431FC2D34F00855368 /* stock-iOS */,
 				914D0F581FC2D35100855368 /* stock-iOSTests */,
 				914D0F631FC2D35100855368 /* stock-iOSUITests */,
@@ -247,6 +250,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91B4B42C1FCCA13E004D4897 /* test.html in Resources */,
 				914D0F4F1FC2D34F00855368 /* LaunchScreen.storyboard in Resources */,
 				914D0F4C1FC2D34F00855368 /* Assets.xcassets in Resources */,
 				914D0F4A1FC2D34F00855368 /* Main.storyboard in Resources */,

@@ -273,18 +273,35 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Historical" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SiB-cC-3mU">
-                                <rect key="frame" x="151.5" y="40" width="72" height="21"/>
+                                <rect key="frame" x="151.5" y="20" width="72" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <wkWebView contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="E1k-Cd-eBM">
+                                <rect key="frame" x="-13" y="51" width="400" height="300"/>
+                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="350" id="9jr-0K-rk9"/>
+                                    <constraint firstAttribute="height" constant="300" id="xkM-XZ-Tjw"/>
+                                </constraints>
+                                <wkWebViewConfiguration key="configuration">
+                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                    <wkPreferences key="preferences"/>
+                                </wkWebViewConfiguration>
+                            </wkWebView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="SiB-cC-3mU" firstAttribute="top" secondItem="aMy-z0-R1N" secondAttribute="top" constant="20" id="O3E-Qc-sfQ"/>
+                            <constraint firstItem="E1k-Cd-eBM" firstAttribute="top" secondItem="SiB-cC-3mU" secondAttribute="bottom" constant="10" id="Lst-yq-zjk"/>
+                            <constraint firstItem="SiB-cC-3mU" firstAttribute="top" secondItem="aMy-z0-R1N" secondAttribute="top" id="O3E-Qc-sfQ"/>
                             <constraint firstItem="SiB-cC-3mU" firstAttribute="centerX" secondItem="WNF-eR-YHa" secondAttribute="centerX" id="Rea-JT-6jT"/>
+                            <constraint firstItem="E1k-Cd-eBM" firstAttribute="centerX" secondItem="WNF-eR-YHa" secondAttribute="centerX" id="pw5-T4-Df9"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="aMy-z0-R1N"/>
                     </view>
+                    <connections>
+                        <outlet property="webView" destination="E1k-Cd-eBM" id="YwE-rg-qH0"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tX4-zu-2f2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -302,7 +319,7 @@
                                 <rect key="frame" x="0.0" y="120" width="375" height="547"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="700" id="9Y6-zM-tm2"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="600" id="9Y6-zM-tm2"/>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="400" id="iCx-1o-3lP"/>
                                 </constraints>
                                 <inset key="separatorInset" minX="15" minY="0.0" maxX="0.0" maxY="0.0"/>

@@ -94,14 +94,12 @@ class StockData{
             if let jNewsArray = json as? [Any]{
                 for jNews in jNewsArray {
                     if let iNewsItem = NewsItem(json:jNews as! [String : Any]){
-                        print (iNewsItem.title);
                         self.NewsList.append(iNewsItem);
                     }
                 }
             }
             
             newsTable.reloadData();
-            
         }
         task.resume();
     }
