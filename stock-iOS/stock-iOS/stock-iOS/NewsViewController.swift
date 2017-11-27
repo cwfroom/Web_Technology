@@ -8,84 +8,67 @@
 
 import UIKit
 
-class NewsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-    let data = StockData.sharedInstance;
+class NewsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource{
+     var data = StockData.sharedInstance;
     
-    @IBOutlet weak var NewsTable: UITableView!
+    @IBOutlet weak var newsTable: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.NewsTable.delegate = self;
-        self.NewsTable.dataSource = self;
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
+        newsTable.delegate = self;
+        newsTable.dataSource = self;
+        newsTable.setEditing(false, animated: false);
+        newsTable.allowsSelection = true;
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    func handleGesture(_ recognizer : UIGestureRecognizer){
+        let tapLocation = recognizer.location(in: self.newsTable);
+        let indexPath = self.newsTable.indexPathForRow(at: tapLocation);
+        if (indexPath != nil){
+            openNewsLink(index: (indexPath?.row)!);
+        }
     }
-
-    // MARK: - Table view data source
-
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1;
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated);
+        data.getNews(newsTable: self);
     }
-
+    
+    func reloadData(){
+        DispatchQueue.main.async {
+            self.newsTable.reloadData();
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //return data.NewsList.count;
-        return 5;
+        return data.NewsList.count;
     }
-
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "NewsTableCell")!;
-        print("FFFFFFF");
-        //print(data.NewsList[indexPath.row].title);
-        //cell.textLabel?.text = data.NewsList[indexPath.row].title;
-        cell.textLabel?.text = "TITLE";
-
+        cell.textLabel?.numberOfLines = 0;
+        cell.textLabel?.font = UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.bold);
+        cell.textLabel?.text = data.NewsList[indexPath.row].title;
+        
+        cell.detailTextLabel?.numberOfLines = 0;
+        cell.detailTextLabel?.textColor = UIColor.gray;
+        cell.detailTextLabel?.text = " Author: " + data.NewsList[indexPath.row].author + "\n\n Date: " + data.NewsList[indexPath.row].date;
+        
         return cell;
     }
     
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    func openNewsLink(index : Int){
+        let newsLink = URL(string : data.NewsList[index].link);
+        UIApplication.shared.open(newsLink!, options: [:], completionHandler:nil);
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let link = data.NewsList[indexPath.row].link;
+        let newsLink = URL(string: link);
+        UIApplication.shared.open(newsLink!, options: [:], completionHandler:nil);
+        
     }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
+    
 
     /*
     // MARK: - Navigation

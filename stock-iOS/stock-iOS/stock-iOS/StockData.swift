@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 //Helper Structs
 struct NewsItem {
@@ -19,13 +19,11 @@ struct NewsItem {
 
 extension NewsItem{
     init?(json : [String : Any]){
-        guard let title = json["title"] as? String,
-        let link = json["link"] as? String,
-        let author = json["author"] as? String,
-        let date = json["data"] as? String
-        else{
-            return nil;
-        }
+        let title = json["title"] as! String;
+        let link = json["link"] as! String;
+        let author = json["author"] as! String;
+        let date = json["date"] as! String;
+      
         self.title = title;
         self.link = link;
         self.author = author;
@@ -51,7 +49,7 @@ class StockData{
     
     func updateData(){
         //getPrice();
-        getNews();
+        //getNews();
     }
     
     func getPrice(){
@@ -80,7 +78,8 @@ class StockData{
     
     }
     
-    func getNews(){
+    func getNews(newsTable : NewsViewController){
+        NewsList = [];
         let requestURL = URL(string: serverAddr + "/news/" + currentSymbol);
         let task = URLSession.shared.dataTask(with: requestURL!) { data, response, error in
             guard error == nil else {
@@ -95,10 +94,13 @@ class StockData{
             if let jNewsArray = json as? [Any]{
                 for jNews in jNewsArray {
                     if let iNewsItem = NewsItem(json:jNews as! [String : Any]){
+                        print (iNewsItem.title);
                         self.NewsList.append(iNewsItem);
                     }
                 }
             }
+            
+            newsTable.reloadData();
             
         }
         task.resume();

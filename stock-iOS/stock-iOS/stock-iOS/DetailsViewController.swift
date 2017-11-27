@@ -23,7 +23,16 @@ class DetailsViewController: UIViewController {
         
         segControl.addTarget(self,action: #selector(selectionDidChange(_:)), for: .valueChanged);
         segControl.selectedSegmentIndex = 0;
+        add(asChildViewController: currentViewController);
         
+         let anyGesture = UITapGestureRecognizer(target: self, action: #selector(self.getGesture(_:)));
+        self.view.addGestureRecognizer(anyGesture);
+    }
+    
+    @objc func getGesture(_ recognizer : UIGestureRecognizer){
+        if (segControl.selectedSegmentIndex == 2){
+            newsViewController.handleGesture(recognizer);
+        }
     }
     
     @objc func selectionDidChange(_ sender: UISegmentedControl) {
@@ -115,7 +124,6 @@ class DetailsViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        data.updateData();
         self.navigationItem.title = data.currentSymbol;
         super.viewWillAppear(animated);
     }

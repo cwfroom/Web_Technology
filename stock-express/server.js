@@ -99,6 +99,7 @@ function getNews(req,res){
 	var symbol = req.params.symbol;
 	var news_url = "https://seekingalpha.com/api/sa/combined/" + symbol + ".xml";
 	if (debug){
+		console.log(news_url);
 		readFile(res,'/debug/AAPL.xml',parseNews);
 	}else{
 		fetchData(https,res,news_url,parseNews);
