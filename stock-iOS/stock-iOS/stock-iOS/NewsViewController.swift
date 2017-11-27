@@ -25,7 +25,9 @@ class NewsViewController: UIViewController, UITableViewDelegate, UITableViewData
         let tapLocation = recognizer.location(in: self.newsTable);
         let indexPath = self.newsTable.indexPathForRow(at: tapLocation);
         if (indexPath != nil){
+            self.newsTable.selectRow(at: indexPath, animated: true, scrollPosition: UITableViewScrollPosition.none);
             openNewsLink(index: (indexPath?.row)!);
+            self.newsTable.deselectRow(at: indexPath!, animated: true);
         }
     }
     

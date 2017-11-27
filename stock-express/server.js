@@ -22,6 +22,7 @@ app.get('/file/:filename',function (req,res){
 
 app.get('/autocomplete/:symbol',autoComplete);
 app.get('/price/:symbol',getPrice);
+app.get('/priceraw/:symbol',getPriceRaw);
 app.get('/pricefast/:symbol',getPriceFast);
 app.get('/indicator/:symbol/:ind',getIndicator);
 app.get('/news/:symbol',getNews);
@@ -51,6 +52,20 @@ app.listen(port, function () {
 function autoComplete(req,res){
 	var symbol = req.params.symbol;
 	fetchData(http,res,autoCompleteURL+symbol, autoCompleteParse);
+}
+
+function getPriceRaw(req,res){
+	var symbol = req.params.symbol;
+	var alpha_base_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=";
+	var alpha_api_key = "QUEJMT41CEQTOAWN";
+	var alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
+	console.log(alpha_url);
+
+	if (debug){
+		readFile(res, '/debug/' + symbol + '.json',echoJSON);
+	}else{
+		fetchData(https,res,alpha_url,echoJSON);
+	}
 }
 
 function getPriceFast(req,res){
