@@ -1,0 +1,129 @@
+
+<style>
+    .blue-anchor{
+	    color: #0000ff;
+		text-decoration: none;
+    }
+</style>
+
+<div id = "container"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://momentjs.com/downloads/moment.js"></script>
+<script src="https://momentjs.com/downloads/moment-timezone-with-data-2012-2022.js"></script>
+<script type="text/javascript">
+	function parseData(data){
+        var meta_data = data["Meta Data"];
+        var currentSymbol = meta_data["2. Symbol"];;
+        var time_series = data["Time Series (Daily)"];
+        var date_keys = Object.keys(time_series);
+
+        var parsed_price = [];
+
+        for (var i=0;i<1000;i++){
+            var i_date = date_keys[i];
+            var i_price = parseFloat(time_series[i_date]["4. close"]);
+            var i_parsed_date = parseInt(moment(i_date).format("x"));
+            parsed_price.push([i_parsed_date,i_price]);
+        }
+
+        parsed_price.reverse();
+        drawChart(currentSymbol,parsed_price);
+	}
+
+	function drawChart(symbol,data){
+          var chart = Highcharts.stockChart('container', {
+                
+                title: {
+                    text: symbol + " Stock Value"
+                },
+
+                subtitle: {
+                    text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+					useHTML : true
+                },
+
+                rangeSelector: {
+                    allButtonsEnabled: true,
+                    buttons: [{
+                        type: 'month',
+                        count: 1,
+                        text: '1m',       
+                    }, {
+                        type : 'month',
+                        count: 3,
+                        text : '3m'
+                    },{
+                        type: 'month',
+                        count: 6,
+                        text: '6m'
+                    },{
+                        type: 'year',
+                        count: 1,
+                        text: '1y'
+                    },{
+                        type: 'all',
+                        text: 'ALL'
+                    }
+
+                ],
+                    
+                    selected: 0
+                },
+
+                series: [{
+                    name: symbol + 'Stock Price',
+                    data: data,
+                    type: 'area',
+                    threshold: 0,
+                    tooltip: {
+                        valueDecimals: 2
+                    }
+                }],
+
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            chart: {
+                                height: 300
+                            },
+                            subtitle: {
+                                text: null
+                            },
+                            navigator: {
+                                enabled: false
+                            }
+                        }
+                    }]
+                }
+            });
+	}
+
+	function getJSON(){
+		$.get(apiURL,function(data,status){
+			parseData(data);
+		});
+	}
+
+    function resizePage(){
+        var meta = document.createElement('meta');
+        meta.setAttribute('name', 'viewport');
+        meta.setAttribute('content', 'width=device-width');
+        document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
+
+    resizePage();
+	getJSON();
+
+	
+
+</script>
+
+
+

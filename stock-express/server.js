@@ -11,6 +11,13 @@ var app = express()
 var autoCompleteURL = 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/json?input=';
 
 
+app.use(function(res,res,next){
+	res.header("Access-Control-Allow-Origin","*");
+	res.header("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept");
+	next();
+
+});
+
 app.get('/', function (req, res) {
   res.sendFile('stock.html', {root:__dirname});
 })
@@ -185,7 +192,7 @@ function parsePrice(res,data){
 	var change = (today_close - yesterday_close).toFixed(2);
 	var changePercent = (change / yesterday_close * 100).toFixed(2) + "%";
 	
-	var range = today_data["3. low"] + "-" + today_data["2. high"];
+	var range = parseFloat(today_data["3. low"]).toFixed(2) + "-" + parseFloat(today_data["2. high"]).toFixed(2);
 	var timestamp = moment(meta_data["3. Last Refreshed"]).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss z'); 
 	var volume = today_data["5. volume"];
 	
@@ -193,7 +200,7 @@ function parsePrice(res,data){
 		'symbol' : currentSymbol,
 		'last_price' : today_close,
 		'change' : change,
-		'change_percet' : changePercent,
+		'change_percent' : changePercent,
 		'timestamp' : timestamp,
 		'open' : today_open,
 		'close' : yesterday_close,

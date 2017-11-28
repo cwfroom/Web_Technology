@@ -12,7 +12,7 @@ import WebKit
 class HistoricalViewController: UIViewController{
 
     @IBOutlet weak var webView: WKWebView!
-    
+    let data = StockData.sharedInstance;
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,34 +29,26 @@ class HistoricalViewController: UIViewController{
         
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        let htmlPath = Bundle.main.path(forResource: "test", ofType: "html")
+    override func viewDidAppear(_ animated: Bool) {
+        let htmlPath = Bundle.main.path(forResource: "historical", ofType: "html")
         let folderPath = Bundle.main.bundlePath
         let baseUrl = URL(fileURLWithPath: folderPath, isDirectory: true)
-        //print(htmlPath ?? "??");
-        //print(baseUrl);
         
-        
+        let jsURL = "<script>var apiURL = \"" + self.data.getPriceRawURL() +  "\"</script>"
         
         do {
-            let htmlString = try NSString(contentsOfFile: htmlPath!, encoding: String.Encoding.utf8.rawValue)
+            let html = try String(contentsOfFile: htmlPath!);
+            let htmlString = jsURL + html;
             webView.loadHTMLString(htmlString as String, baseURL: baseUrl)
         } catch {
-           
+            print("HTML cannot be loaded");
         }
         
-        //webView.navigationDelegate = self
-        
-        super.viewWillAppear(animated);
+        super.viewDidAppear(animated);
     }
     
     func handleGesture(_ recognizer : UIGestureRecognizer){
         recognizer.cancelsTouchesInView = false;
-        
-        //self.webView.ges
-        //recognizer
-        //webView.addGestureRecognizer(<#T##gestureRecognizer: UIGestureRecognizer##UIGestureRecognizer#>)
-        
     }
 
 

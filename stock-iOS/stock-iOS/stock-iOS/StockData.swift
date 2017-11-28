@@ -11,10 +11,7 @@ import UIKit
 
 //Helper Structs
 struct NewsItem {
-    let title : String;
-    let link : String;
-    let author: String;
-    let date : String;
+    let title,link,author,date : String;
 }
 
 extension NewsItem{
@@ -31,6 +28,58 @@ extension NewsItem{
     }
 }
 
+struct FavItem{
+    var symbol,changeStr : String;
+    var price,change,changePercent : Float;
+    var volume : Int;
+}
+
+extension FavItem{
+    init?(symbol : String, price : Float, change : Float, changePercent : Float, volume : Int){
+        self.symbol = symbol;
+        self.price = price;
+        self.change = change;
+        self.changePercent = changePercent;
+        self.volume = volume;
+        self.changeStr = "";
+    }
+}
+
+struct DetailItem{
+    let symbol,lastPrice,change,changePercent,timestamp,open,close,range,volume : String;
+    let arr : [String];
+}
+
+extension DetailItem{
+    init?(json : [String : Any]){
+        let symbol = json["symbol"] as! String;
+        let lastPrice = json["last_price"] as! String;
+        let change = json["change"] as! String;
+        let changePercent = json["change_percent"] as! String;
+        let timestamp = json["timestamp"] as! String;
+        let open = json["open"] as! String;
+        let close = json["close"] as! String;
+        let range = json["range"] as! String;
+        let volume = json["volume"] as! String;
+        
+        self.symbol = symbol;
+        self.lastPrice = lastPrice;
+        self.change = change;
+        self.changePercent = changePercent;
+        self.timestamp = timestamp;
+        self.open = open;
+        self.close = close;
+        self.range = range;
+        self.volume = volume;
+        
+        let changeStr = change + "(" + changePercent + ")";
+        
+        self.arr = [symbol,lastPrice,changeStr,timestamp,open,close,range,volume];
+        
+    }
+}
+ 
+
 
 class StockData{
     static let sharedInstance = StockData();
@@ -39,9 +88,9 @@ class StockData{
     
     public var currentSymbol : String;
     
-
+    var currentDetail : DetailItem?;
     var NewsList : [NewsItem] = [];
-    
+    var FavList : [FavItem] = [];
     
     init() {
         currentSymbol = "AAPL";
@@ -52,7 +101,15 @@ class StockData{
         //getNews();
     }
     
-    func getPrice(){
+    func getPriceRawURL() -> String{
+        return serverAddr + "/priceraw/" + currentSymbol;
+    }
+    
+    func getIndicatorURL(indicator : String) -> String{
+        return serverAddr + "/indicator/" + currentSymbol + "/" + indicator;
+    }
+    
+    func getPrice(currentView : CurrentViewController){
         let requestURL = URL(string: serverAddr + "/price/" + currentSymbol);
         
         let task = URLSession.shared.dataTask(with: requestURL!) { data, response, error in
@@ -66,17 +123,18 @@ class StockData{
             }
             
             let json = try! JSONSerialization.jsonObject(with: data, options: [])
-            print(json)
+            if let json = json as? [String : Any]{
+                if let jTable = json["table"] as? [String : Any]{
+                    self.currentDetail = DetailItem(json: jTable);
+                }
+            }
+            currentView.reloadData();
+            
         }
-        
         task.resume();
         
-
     }
     
-    func parsePrice(){
-    
-    }
     
     func getNews(newsTable : NewsViewController){
         NewsList = [];
@@ -102,6 +160,11 @@ class StockData{
             newsTable.reloadData();
         }
         task.resume();
+    }
+    
+    func addFav(){
+        //To float
+        //let price = currentDetail?.lastPrice;
     }
     
 }

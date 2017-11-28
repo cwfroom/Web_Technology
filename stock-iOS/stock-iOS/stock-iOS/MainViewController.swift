@@ -8,9 +8,12 @@
 
 import UIKit
 
-class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
+class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITableViewDelegate,UITableViewDataSource {
+
+    
     @IBOutlet weak var sortbyPicker: UIPickerView!
     @IBOutlet weak var orderbyPicker: UIPickerView!
+    @IBOutlet weak var favTable: UITableView!
     
     let sortByData = ["Default","Symbol","Price","Change","Percent"];
     let orderByData = ["Ascending","Desceding"];
@@ -59,6 +62,17 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         label?.textAlignment = .center;
         return label!;
         
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return data.FavList.count;
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FavTableCell")!;
+        
+        
+        return cell;
     }
 
     
