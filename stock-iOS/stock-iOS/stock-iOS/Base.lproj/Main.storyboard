@@ -98,13 +98,46 @@
                                     <constraint firstAttribute="width" constant="350" id="RXR-ya-sKx"/>
                                 </constraints>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FavTableCell" id="W1A-MX-wOr">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FavTableCell" id="W1A-MX-wOr" customClass="FavTableCell" customModule="stock_iOS" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="350" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="W1A-MX-wOr" id="UrU-Bb-U2y">
                                             <rect key="frame" x="0.0" y="0.0" width="350" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Symbol" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mur-Tf-dJg" userLabel="SymbolLabel">
+                                                    <rect key="frame" x="46" y="11" width="58" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Price" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gnd-KL-VfX" userLabel="PriceLabel">
+                                                    <rect key="frame" x="155.5" y="12" width="39" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Change" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ge5-ai-tRc" userLabel="ChangeLabel">
+                                                    <rect key="frame" x="245" y="12" width="60" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="mur-Tf-dJg" firstAttribute="centerX" secondItem="UrU-Bb-U2y" secondAttribute="centerX" constant="-100" id="58e-0a-VIM"/>
+                                                <constraint firstItem="ge5-ai-tRc" firstAttribute="centerX" secondItem="UrU-Bb-U2y" secondAttribute="centerX" constant="100" id="A99-IV-g30"/>
+                                                <constraint firstItem="ge5-ai-tRc" firstAttribute="centerY" secondItem="UrU-Bb-U2y" secondAttribute="centerY" id="Pr3-YS-xb3"/>
+                                                <constraint firstItem="gnd-KL-VfX" firstAttribute="centerX" secondItem="UrU-Bb-U2y" secondAttribute="centerX" id="RR6-dL-Q2i"/>
+                                                <constraint firstItem="gnd-KL-VfX" firstAttribute="centerY" secondItem="UrU-Bb-U2y" secondAttribute="centerY" id="ejx-WT-9Gm"/>
+                                                <constraint firstItem="mur-Tf-dJg" firstAttribute="centerY" secondItem="UrU-Bb-U2y" secondAttribute="centerY" id="l3o-jj-6dO"/>
+                                            </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="changeLabel" destination="ge5-ai-tRc" id="vKY-mS-yIR"/>
+                                            <outlet property="priceLabel" destination="gnd-KL-VfX" id="KAi-ve-c9Z"/>
+                                            <outlet property="symbolLabel" destination="mur-Tf-dJg" id="HLf-Hp-knX"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>

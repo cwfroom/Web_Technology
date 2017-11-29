@@ -104,6 +104,7 @@ class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
+        checkFavButton();
         changeButton.isEnabled = false;
     }
 

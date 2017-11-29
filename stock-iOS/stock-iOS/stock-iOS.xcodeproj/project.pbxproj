@@ -24,6 +24,7 @@
 		91B4B4301FCD1A9B004D4897 /* DetailsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B4B42F1FCD1A9B004D4897 /* DetailsTableCell.swift */; };
 		91B4B4321FCD833E004D4897 /* price.html in Resources */ = {isa = PBXBuildFile; fileRef = 91B4B4311FCD833E004D4897 /* price.html */; };
 		91B4B4341FCD834B004D4897 /* indicator.html in Resources */ = {isa = PBXBuildFile; fileRef = 91B4B4331FCD834B004D4897 /* indicator.html */; };
+		91B4B4361FCECA9F004D4897 /* FavTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B4B4351FCECA9F004D4897 /* FavTableCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		91B4B42F1FCD1A9B004D4897 /* DetailsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTableCell.swift; sourceTree = "<group>"; };
 		91B4B4311FCD833E004D4897 /* price.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = price.html; path = "stock-iOS/html/price.html"; sourceTree = "<group>"; };
 		91B4B4331FCD834B004D4897 /* indicator.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = indicator.html; path = "stock-iOS/html/indicator.html"; sourceTree = "<group>"; };
+		91B4B4351FCECA9F004D4897 /* FavTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavTableCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +135,7 @@
 				918EEC441FC8E5860068471C /* HistoricalViewController.swift */,
 				918EEC481FC8F8960068471C /* NewsViewController.swift */,
 				91B4B42F1FCD1A9B004D4897 /* DetailsTableCell.swift */,
+				91B4B4351FCECA9F004D4897 /* FavTableCell.swift */,
 			);
 			path = "stock-iOS";
 			sourceTree = "<group>";
@@ -299,6 +302,7 @@
 				918EEC451FC8E5860068471C /* HistoricalViewController.swift in Sources */,
 				918EEC491FC8F8960068471C /* NewsViewController.swift in Sources */,
 				914D0F451FC2D34F00855368 /* AppDelegate.swift in Sources */,
+				91B4B4361FCECA9F004D4897 /* FavTableCell.swift in Sources */,
 				918EA2471FC6D312002EDEFC /* DetailsViewController.swift in Sources */,
 				91B4B4301FCD1A9B004D4897 /* DetailsTableCell.swift in Sources */,
 			);

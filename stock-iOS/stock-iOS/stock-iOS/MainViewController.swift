@@ -64,13 +64,16 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
     }
     
+    //FavTable
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return data.FavList.count;
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FavTableCell")!;
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FavTableCell")! as! FavTableCell;
+        cell.symbolLabel.text = data.FavList[indexPath.row].symbol;
+        cell.priceLabel.text = String(data.FavList[indexPath.row].price);
+        cell.changeLabel.text = data.FavList[indexPath.row].changeStr;
         
         return cell;
     }
@@ -84,11 +87,13 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         self.sortbyPicker.dataSource = self;
         self.orderbyPicker.delegate = self;
         self.orderbyPicker.dataSource = self;
-       
+        self.favTable.delegate = self;
+        self.favTable.dataSource = self;
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: animated);
+        self.favTable.reloadData();
         super.viewWillAppear(animated);
     }
     

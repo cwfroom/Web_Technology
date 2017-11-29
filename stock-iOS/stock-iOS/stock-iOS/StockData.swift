@@ -95,12 +95,13 @@ class StockData{
     
     init() {
         currentSymbol = "AAPL";
+        //For debugging
+        let A = FavItem(symbol: "A", changeStr: "(1)10%", price: 100, change: 1, changePercent: 0.1, volume: 100);
+        let B = FavItem(symbol: "B", changeStr: "(2)5%", price: 150, change: 2, changePercent: 0.05, volume: 50);
+        FavList.append(A);
+        FavList.append(B);
     }
     
-    func updateData(){
-        //getPrice();
-        //getNews();
-    }
     
     func getPriceURL() -> String{
         return serverAddr + "/price/" + currentSymbol;
@@ -187,10 +188,29 @@ class StockData{
     
     func addFav(){
         //To float
-        //let price = currentDetail?.lastPrice;
+        let price = Float(currentDetail!.lastPrice)!;
+        let change = Float(currentDetail!.change)!;
+        let changePercent = Float(currentDetail!.changePercent.replacingOccurrences(of: "%", with: ""))!;
+        let volume = Int(currentDetail!.volume)!;
+        let changeStr = currentDetail!.change + "(" + currentDetail!.changePercent + ")";
+        
+        let fav = FavItem(symbol: currentSymbol, changeStr: changeStr, price: price, change: change, changePercent: changePercent, volume: volume);
+        FavList.append(fav);
     }
     
     func removeFav(symbol : String){
+        var index : Int = 0;
+        for fav in FavList{
+            if (fav.symbol == symbol){
+                break;
+            }
+            index += 1;
+        }
+        
+        FavList.remove(at: index);
+    }
+    
+    func updateFav(){
         
     }
     
