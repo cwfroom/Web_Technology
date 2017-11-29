@@ -87,6 +87,7 @@ class StockData{
     let serverAddr = "http://127.0.0.1:8000";
     
     public var currentSymbol : String;
+    public var currentIsFav : Bool = false;
     
     var currentDetail : DetailItem?;
     var NewsList : [NewsItem] = [];
@@ -101,6 +102,14 @@ class StockData{
         //getNews();
     }
     
+    func getPriceURL() -> String{
+        return serverAddr + "/price/" + currentSymbol;
+    }
+    
+    func getPriceFastURL() -> String{
+        return serverAddr + "/pricefast/" + currentSymbol;
+    }
+    
     func getPriceRawURL() -> String{
         return serverAddr + "/priceraw/" + currentSymbol;
     }
@@ -109,8 +118,12 @@ class StockData{
         return serverAddr + "/indicator/" + currentSymbol + "/" + indicator;
     }
     
+    func getNewsURL() -> String{
+        return serverAddr + "/news/" + currentSymbol;
+    }
+    
     func getPrice(currentView : CurrentViewController){
-        let requestURL = URL(string: serverAddr + "/price/" + currentSymbol);
+        let requestURL = URL(string: self.getPriceURL());
         
         let task = URLSession.shared.dataTask(with: requestURL!) { data, response, error in
             guard error == nil else {
@@ -138,7 +151,7 @@ class StockData{
     
     func getNews(newsTable : NewsViewController){
         NewsList = [];
-        let requestURL = URL(string: serverAddr + "/news/" + currentSymbol);
+        let requestURL = URL(string: self.getNewsURL());
         let task = URLSession.shared.dataTask(with: requestURL!) { data, response, error in
             guard error == nil else {
                 print(error!)
@@ -162,9 +175,23 @@ class StockData{
         task.resume();
     }
     
+    func changeFav(ui : CurrentViewController){
+        if (currentIsFav){
+            removeFav(symbol: currentSymbol);
+        }else{
+            addFav();
+        }
+        currentIsFav = !currentIsFav;
+        ui.checkFavButton();
+    }
+    
     func addFav(){
         //To float
         //let price = currentDetail?.lastPrice;
+    }
+    
+    func removeFav(symbol : String){
+        
     }
     
 }

@@ -1,0 +1,121 @@
+
+<style>
+    .blue-anchor{
+	    color: #0000ff;
+		text-decoration: none;
+    }
+</style>
+
+<div id = "container"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript">
+	function parseData(data){
+        var symbol = data["table"]["symbol"];
+        var series = data["series"];
+        console.log(series);
+        var date_keys = Object.keys(series);
+
+        console.log(date_keys);
+
+        var prices = [];
+        var volumes = [];
+        for (var i in date_keys){
+            var i_date = date_keys[i];
+            var i_item = series[i_date];
+            prices.push(parseFloat(i_item["price"]));
+            volumes.push(parseFloat(i_item["volume"]));
+        }
+        
+        date_keys.reverse();
+        prices.reverse();
+        volumes.reverse();
+
+        drawChart(symbol,date_keys,prices,volumes);
+	}
+
+	function drawChart(symbol,dates,prices,volumes){
+        Highcharts.chart('container', {
+            chart :{
+                zoomType : 'x'
+            },
+            title: {
+                text: symbol + " Stock Price and Volume"
+            },
+            subtitle:{
+                text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+                useHTML : true
+            },
+            tooltip: {
+                pointFormat : '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y: .2f}</b><br/>'
+            },
+            xAxis: {                                
+                categories: dates,
+                tickInterval : 5,
+            },
+            yAxis: [{ // Primary yAxis
+                    labels: {
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    },
+                    title: {
+                        text: 'Stock Price',
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    }
+                }, { // Secondary yAxis
+                    title: {
+                        text: 'Volume',
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    },
+                    labels: {
+                        style: {
+                            color: Highcharts.getOptions().colors[1]
+                        }
+                    },
+                    opposite: true
+                }],
+            series: [{
+                type : 'area',
+                name: symbol,
+                data: prices,
+                color : "#393280"
+            },{
+                yAxis : 1,
+                type : 'column',
+                name : symbol + "Volume",
+                data : volumes,
+                color : "#cf454d"
+            }]
+        });
+	}
+
+	function getJSON(){
+		$.get(apiURL,function(data,status){
+			parseData(data);
+		});
+	}
+
+    function resizePage(){
+        var meta = document.createElement('meta');
+        meta.setAttribute('name', 'viewport');
+        meta.setAttribute('content', 'width=device-width');
+        document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
+
+    resizePage();
+	getJSON();
+
+	
+
+</script>
+
+
+

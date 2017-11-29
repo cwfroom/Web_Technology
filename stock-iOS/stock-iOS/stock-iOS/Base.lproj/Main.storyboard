@@ -61,7 +61,7 @@
                                 <rect key="frame" x="320" y="269" width="25" height="25"/>
                                 <state key="normal" image="RefreshIcon"/>
                             </button>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fmk-7S-2EW">
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="fmk-7S-2EW">
                                 <rect key="frame" x="248" y="264" width="51" height="31"/>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sort By" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="w2u-dc-QJa" userLabel="SortByLabel">
@@ -234,6 +234,9 @@
                                                     <constraint firstAttribute="height" constant="30" id="in4-kJ-nmb"/>
                                                 </constraints>
                                                 <state key="normal" image="StarEmpty"/>
+                                                <connections>
+                                                    <action selector="favButtonTouch:" destination="Wus-b0-klg" eventType="touchDown" id="MXt-Ng-48g"/>
+                                                </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BNP-aJ-sKu" userLabel="FacebookButton">
                                                 <rect key="frame" x="312.5" y="10" width="30" height="30"/>
@@ -288,7 +291,22 @@
                                                 <rect key="frame" x="277.5" y="409.5" width="60" height="33"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <state key="normal" title="Change"/>
+                                                <connections>
+                                                    <action selector="changeButtonTouch:" destination="Wus-b0-klg" eventType="touchDown" id="CZj-jE-VAY"/>
+                                                </connections>
                                             </button>
+                                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mq8-7k-9m0" userLabel="ChartView">
+                                                <rect key="frame" x="12" y="455.5" width="350" height="400"/>
+                                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="350" id="PX3-UU-BqY"/>
+                                                    <constraint firstAttribute="height" constant="400" id="qcL-9J-qzy"/>
+                                                </constraints>
+                                                <wkWebViewConfiguration key="configuration">
+                                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                                                    <wkPreferences key="preferences"/>
+                                                </wkWebViewConfiguration>
+                                            </wkWebView>
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
@@ -299,6 +317,7 @@
                                             <constraint firstItem="FvB-VP-qdg" firstAttribute="top" secondItem="Tu6-F0-xUo" secondAttribute="top" id="ZMM-rO-hWd"/>
                                             <constraint firstItem="b2d-rH-id6" firstAttribute="top" secondItem="fk4-8z-4mK" secondAttribute="bottom" id="Zky-Dh-MW1"/>
                                             <constraint firstItem="ylk-jz-ekn" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" constant="120" id="f0A-aD-DPx"/>
+                                            <constraint firstItem="Mq8-7k-9m0" firstAttribute="top" secondItem="b2d-rH-id6" secondAttribute="bottom" constant="5" id="fgN-VL-7C7"/>
                                             <constraint firstItem="xz2-Sd-gXd" firstAttribute="top" secondItem="fk4-8z-4mK" secondAttribute="bottom" constant="15" id="fra-f5-RZO"/>
                                             <constraint firstItem="fk4-8z-4mK" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" id="g54-28-nS4"/>
                                             <constraint firstItem="FvB-VP-qdg" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" constant="100" id="hA8-mg-6k4"/>
@@ -306,6 +325,7 @@
                                             <constraint firstItem="ylk-jz-ekn" firstAttribute="centerY" secondItem="xz2-Sd-gXd" secondAttribute="centerY" id="npZ-Kh-w3z"/>
                                             <constraint firstItem="Tu6-F0-xUo" firstAttribute="top" secondItem="4Fp-zA-KaT" secondAttribute="top" constant="10" id="o53-bY-0Tv"/>
                                             <constraint firstItem="b2d-rH-id6" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" id="pjC-Xs-LVG"/>
+                                            <constraint firstItem="Mq8-7k-9m0" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" id="uVY-6U-yRa"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -331,8 +351,13 @@
                         <viewLayoutGuide key="safeArea" id="kIv-Zc-DCi"/>
                     </view>
                     <connections>
+                        <outlet property="FBButton" destination="BNP-aJ-sKu" id="NEn-xB-lc7"/>
+                        <outlet property="changeButton" destination="ylk-jz-ekn" id="R7v-BA-tUJ"/>
                         <outlet property="currentTable" destination="fk4-8z-4mK" id="uIM-ag-ZMA"/>
+                        <outlet property="favButton" destination="FvB-VP-qdg" id="rjR-aa-qCu"/>
                         <outlet property="indicatorPicker" destination="b2d-rH-id6" id="PYl-X8-xb4"/>
+                        <outlet property="scrollView" destination="Gt8-02-gpx" id="ThO-aP-ZJi"/>
+                        <outlet property="webView" destination="Mq8-7k-9m0" id="TIy-cg-sep"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="exE-HE-fyn" userLabel="First Responder" sceneMemberID="firstResponder"/>

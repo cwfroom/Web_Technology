@@ -17,19 +17,12 @@ class HistoricalViewController: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
-        
-        let anyGesture = UITapGestureRecognizer(target: self, action: #selector(self.getGesture(_:)));
-        anyGesture.cancelsTouchesInView = false;
-        self.view.addGestureRecognizer(anyGesture);
+
     }
     
-    @objc func getGesture(_ recognizer : UIGestureRecognizer){
-        print("Getting gesture in child view");
-        
-    }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated);
         let htmlPath = Bundle.main.path(forResource: "historical", ofType: "html")
         let folderPath = Bundle.main.bundlePath
         let baseUrl = URL(fileURLWithPath: folderPath, isDirectory: true)
@@ -43,8 +36,6 @@ class HistoricalViewController: UIViewController{
         } catch {
             print("HTML cannot be loaded");
         }
-        
-        super.viewDidAppear(animated);
     }
     
     func handleGesture(_ recognizer : UIGestureRecognizer){

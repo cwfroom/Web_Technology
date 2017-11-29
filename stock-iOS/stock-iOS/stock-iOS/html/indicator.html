@@ -1,0 +1,342 @@
+<script type="text/javascript">
+    //var apiURL = "http://127.0.0.1:3000/indicator/AAPL/BBANDS";
+    //var lines = 3;
+</script>
+
+<style>
+    .blue-anchor{
+	    color: #0000ff;
+		text-decoration: none;
+    }
+</style>
+
+<div id = "container"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script type="text/javascript">
+	function parseData(data){
+        if (lines == 1){
+            drawSingleLineChart(data);
+        }else if (lines == 2){
+            drawDoubleLineChart(data);
+        }else if (lines == 3){
+            drawTripleLineChart(data);
+        }
+
+	}
+
+	function getJSON(){
+		$.get(apiURL,function(data,status){
+			parseData(data);
+		});
+	}
+
+    function resizePage(){
+        var meta = document.createElement('meta');
+        meta.setAttribute('name', 'viewport');
+        meta.setAttribute('content', 'width=device-width');
+        document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
+  function yIntervalHelper(arr){   
+            var max = arr[0];
+            var min = arr[1];
+            for (var i=0;i<arr.length;i++){
+                if ( arr[i] > max ){
+                    max = arr[i];
+                }
+                if (arr[i] < min){
+                    min = arr[i];
+                }
+            }
+
+            var result = [];
+            result.push(min);
+            result.push(max);
+
+            return result;
+        }
+
+    function drawSingleLineChart(data_json){
+            var info = data_json['info'];
+            var data_series = data_json['series'];
+
+            var symbol = info['symbol'];
+            var ind_title = info['ind_title'];
+            var ind_acry = info['ind_acry'];
+            var date_keys = Object.keys(data_series);
+            var ind_keys =  Object.keys(data_series[date_keys[0]]);
+
+            var x_data = [];
+
+            for (var i = 0;i<date_keys.length;i++){
+                x_data.push( parseFloat((data_series[date_keys[i]])[ind_keys[0]]) );
+            }
+
+            date_keys.reverse();
+            x_data.reverse();
+
+            var y_ticks = yIntervalHelper(x_data);
+            
+            currentChart = Highcharts.chart('container', {
+                chart :{
+                    zoomType : 'x'
+                },
+                title: {
+                    text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
+                },
+                subtitle:{
+                    text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+                    useHTML : true
+                },
+                xAxis: {                                
+                    categories: date_keys,
+                    tickInterval : 5,
+                    minorGridLineWidth: 0,
+                    minorTickInterval: 'auto',
+                    minorTickColor: '#d7606a',
+                    minorTickWidth: 1,
+                    endOnTick : true
+                },
+                yAxis: { // Primary yAxis
+                        floor: y_ticks[0],
+                        ceiling: y_ticks[1],
+                        labels: {
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        },
+                        title: {
+                            text: ind_acry,
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        }
+                    },
+                legend: {
+                    align : 'center',
+                    verticalAlign :'bottom'
+                },
+                series: [{
+                    type : 'line',
+                    name: symbol,
+                    data: x_data,
+                    color : '#d7606a',
+                    lineWidth : 1,
+                    marker: {
+                        enabled: true,
+                        radius: 1
+                    }                               
+                    }
+                ]
+            });
+                                                
+    }
+
+    function drawDoubleLineChart(data_json){
+            var info = data_json['info'];
+            var data_series = data_json['series'];
+
+            var symbol = info['symbol'];
+            var ind_title = info['ind_title'];
+            var ind_acry = info['ind_acry'];
+            var date_keys = Object.keys(data_series);
+            var ind_keys =  Object.keys(data_series[date_keys[0]]);
+
+            var x_data_0 = [];
+            var x_data_1 = [];
+
+            for (var i = 0;i<date_keys.length;i++){
+                x_data_0.push(parseFloat((data_series[date_keys[i]])[ind_keys[0]]));
+                x_data_1.push(parseFloat((data_series[date_keys[i]])[ind_keys[1]]));   
+            }
+
+            date_keys.reverse();
+            x_data_0.reverse();
+            x_data_1.reverse();
+
+            var y_ticks = yIntervalHelper(x_data_0);
+            
+            currentChart = Highcharts.chart('container', {
+                chart :{
+                    zoomType : 'x'
+                },
+                title: {
+                    text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
+                },
+                subtitle:{
+                    text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+                    useHTML : true
+                },
+                xAxis: {                                
+                    categories: date_keys,
+                    tickInterval : 5,
+                    minorGridLineWidth: 0,
+                    minorTickInterval: 'auto',
+                    minorTickColor: '#d7606a',
+                    minorTickWidth: 1,
+                    endOnTick : true
+                },
+                yAxis: { // Primary yAxis
+                        floor: y_ticks[0],
+                        ceiling: y_ticks[1],
+                        labels: {
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        },
+                        title: {
+                            text: ind_acry,
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        }
+                    },
+                legend: {
+                    align : 'center',
+                    verticalAlign :'bottom'
+                },
+                series: [{
+                            type : 'line',
+                            name: symbol + " " + ind_keys[0],
+                            data: x_data_0,
+                            color : '#d7606a',
+                            lineWidth : 1,
+                            marker: {
+                                enabled: true,
+                                radius: 1
+                            }                               
+                            },
+                            {
+                            type : 'line',
+                            name: symbol + " " + ind_keys[1],
+                            data: x_data_1,
+                            color : '#00bfff',
+                            lineWidth : 1,
+                            marker: {
+                                enabled: true,
+                                radius: 1
+                            }                               
+                            }
+                ]
+            });
+                                                
+    }
+
+    function drawTripleLineChart(data_json){
+            var info = data_json['info'];
+            var data_series = data_json['series'];
+
+            var symbol = info['symbol'];
+            var ind_title = info['ind_title'];
+            var ind_acry = info['ind_acry'];
+            var date_keys = Object.keys(data_series);
+            var ind_keys =  Object.keys(data_series[date_keys[0]]);
+
+            var x_data_0 = [];
+            var x_data_1 = [];
+            var x_data_2 = [];
+
+            for (var i = 0;i<date_keys.length;i++){
+                x_data_0.push(parseFloat((data_series[date_keys[i]])[ind_keys[0]]));
+                x_data_1.push(parseFloat((data_series[date_keys[i]])[ind_keys[1]]));
+                x_data_2.push(parseFloat((data_series[date_keys[i]])[ind_keys[2]]));     
+            }
+
+            date_keys.reverse();
+            x_data_0.reverse();
+            x_data_1.reverse();
+            x_data_2.reverse();
+
+            var y_ticks = yIntervalHelper(x_data_0);
+            
+            currentChart = Highcharts.chart('container', {
+                chart :{
+                    zoomType : 'x'
+                },
+                title: {
+                    text: '<span style=\"font-size:14px\">' + ind_title + '</span>',
+                },
+                subtitle:{
+                    text : '<a href="https://www.alphavantage.co/" class="blue-anchor" target="_blank">Source: Alpha Advantage</a>',
+                    useHTML : true
+                },
+                xAxis: {                                
+                    categories: date_keys,
+                    tickInterval : 5,
+                    minorGridLineWidth: 0,
+                    minorTickInterval: 'auto',
+                    minorTickColor: '#d7606a',
+                    minorTickWidth: 1,
+                    endOnTick : true
+                },
+                yAxis: { // Primary yAxis
+                        floor: y_ticks[0],
+                        ceiling: y_ticks[1],
+                        labels: {
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        },
+                        title: {
+                            text: ind_acry,
+                            style: {
+                                color: Highcharts.getOptions().colors[1]
+                            }
+                        }
+                    },
+                legend: {
+                    align : 'center',
+                    verticalAlign :'bottom'
+                },
+                series: [{
+                            type : 'line',
+                            name: symbol + " " + ind_keys[0],
+                            data: x_data_0,
+                            color : '#d7606a',
+                            lineWidth : 1,
+                            marker: {
+                                enabled: true,
+                                radius: 1
+                            }                               
+                            },
+                            {
+                            type : 'line',
+                            name: symbol + " " + ind_keys[1],
+                            data: x_data_1,
+                            color : '#00bfff',
+                            lineWidth : 1,
+                            marker: {
+                                enabled: true,
+                                radius: 1
+                            }                               
+                            },
+                            {
+                            type : 'line',
+                            name: symbol + " " + ind_keys[2],
+                            data: x_data_2,
+                            color : '#00b200',
+                            lineWidth : 1,
+                            marker: {
+                                enabled: true,
+                                radius: 1
+                            }                               
+                            }
+                        ]
+            });
+                                                
+    }
+
+
+
+    resizePage();
+	getJSON();
+
+	
+
+</script>
+
+
+

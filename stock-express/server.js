@@ -109,9 +109,9 @@ function getIndicator(req,res){
 	var ind_url = "https://www.alphavantage.co/query?function=" + ind + "&symbol=" + symbol + "&interval=daily&time_period=10&series_type=close&apikey=QUEJMT41CEQTOAWN";
 	
 	if (debug){
-		readFile(res, '/debug/SMA.json',echoJSON);
+		readFile(res, '/debug/SMA.json',parseIndicator);
 	}else{
-		fetchData(https,res,ind_url,echoJSON);
+		fetchData(https,res,ind_url,parseIndicator);
 	}
 	
 	
@@ -176,7 +176,7 @@ function parsePrice(res,data){
 	}
 
 	var result = {};
-	var series = [];
+	var series = {};
 
 	var meta_data = data["Meta Data"];
 	var time_series = data["Time Series (Daily)"];
@@ -226,19 +226,17 @@ function parsePrice(res,data){
 	  var i_close = parseFloat(i_item["4. close"]).toFixed(2);
 	  var i_volume = parseFloat(i_item["5. volume"]).toFixed(2);
 
-	  series.push({
-		  [i_parsed_date] :{
-				'price' : i_close,
-				'volume' : i_volume
-			}
-		}
-	  )
+	  series[i_parsed_date] = {
+	  	'price' : i_close,
+		'volume' : i_volume
+	  }
+
+
 	  if (i_month == current_month-6 && i_day <= current_day && (i % 5) ==0){
 		break;
 	  }
 	}
 
-	series.reverse();
 	result['series'] = series;
 	
 	res.send(result);
@@ -281,6 +279,66 @@ function parsePriceFast(res,json){
 		"volume" : volume
 	}
 	res.send(result);
+}
+
+function parseIndicator(res, json){
+	try{
+		json = JSON.parse(json);
+	}catch (e){
+		replyError(res);
+		return;
+	}
+
+	var meta_data = json["Meta Data"];
+	if (meta_data === undefined){
+		replyError(res);
+		return;
+	}
+
+	var result = {};
+	var series = {};
+
+	var root_keys = Object.keys(json);
+    var symbol = (json[root_keys[0]])["1: Symbol"]
+    var ind_title = (json[root_keys[0]])["2: Indicator"];
+    var data_series = json[root_keys[1]];
+    var date_keys = Object.keys(data_series);
+    var ind_keys =  Object.keys((json[root_keys[1]])[date_keys[0]]);
+    var ind_acry = (root_keys[1].split(" "))[2];
+
+    result['info'] = {
+    	'symbol' : symbol,
+    	'ind_title' : ind_title,
+    	'ind_acry' : ind_acry
+    }
+
+	var today_date = date_keys[0];
+	var today_date_split = today_date.split("-");
+	var current_month = today_date_split[1];
+	var current_day = today_date_split[2];
+
+	for (var i in date_keys){
+	  var i_date = date_keys[i];
+	  var i_date_split = i_date.split("-");
+	  var i_month = i_date_split[1];
+	  var i_day = i_date_split[2];
+
+	  var i_item = data_series[i_date];
+
+	  var i_parsed_date = i_month + "/" + i_day;
+
+	  series[i_parsed_date] = i_item;
+
+	  if (i_month == current_month-6 && i_day <= current_day && (i % 5) ==0){
+		break;
+	  }
+	}
+
+	result['series'] = series;
+
+    res.send(result);
+
+
 }
 
 function parseNews(res,xml){

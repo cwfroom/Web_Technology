@@ -22,6 +22,8 @@
 		91B4B42C1FCCA13E004D4897 /* test.html in Resources */ = {isa = PBXBuildFile; fileRef = 91B4B42B1FCCA13E004D4897 /* test.html */; };
 		91B4B42E1FCCEB89004D4897 /* historical.html in Resources */ = {isa = PBXBuildFile; fileRef = 91B4B42D1FCCEB88004D4897 /* historical.html */; };
 		91B4B4301FCD1A9B004D4897 /* DetailsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91B4B42F1FCD1A9B004D4897 /* DetailsTableCell.swift */; };
+		91B4B4321FCD833E004D4897 /* price.html in Resources */ = {isa = PBXBuildFile; fileRef = 91B4B4311FCD833E004D4897 /* price.html */; };
+		91B4B4341FCD834B004D4897 /* indicator.html in Resources */ = {isa = PBXBuildFile; fileRef = 91B4B4331FCD834B004D4897 /* indicator.html */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +65,8 @@
 		91B4B42B1FCCA13E004D4897 /* test.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = test.html; path = "stock-iOS/html/test.html"; sourceTree = "<group>"; };
 		91B4B42D1FCCEB88004D4897 /* historical.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = historical.html; path = "stock-iOS/html/historical.html"; sourceTree = "<group>"; };
 		91B4B42F1FCD1A9B004D4897 /* DetailsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsTableCell.swift; sourceTree = "<group>"; };
+		91B4B4311FCD833E004D4897 /* price.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = price.html; path = "stock-iOS/html/price.html"; sourceTree = "<group>"; };
+		91B4B4331FCD834B004D4897 /* indicator.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = indicator.html; path = "stock-iOS/html/indicator.html"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +97,8 @@
 		914D0F381FC2D34F00855368 = {
 			isa = PBXGroup;
 			children = (
+				91B4B4331FCD834B004D4897 /* indicator.html */,
+				91B4B4311FCD833E004D4897 /* price.html */,
 				91B4B42D1FCCEB88004D4897 /* historical.html */,
 				91B4B42B1FCCA13E004D4897 /* test.html */,
 				914D0F431FC2D34F00855368 /* stock-iOS */,
@@ -256,6 +262,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91B4B4341FCD834B004D4897 /* indicator.html in Resources */,
+				91B4B4321FCD833E004D4897 /* price.html in Resources */,
 				91B4B42E1FCCEB89004D4897 /* historical.html in Resources */,
 				91B4B42C1FCCA13E004D4897 /* test.html in Resources */,
 				914D0F4F1FC2D34F00855368 /* LaunchScreen.storyboard in Resources */,
