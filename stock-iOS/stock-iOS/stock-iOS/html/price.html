@@ -34,6 +34,7 @@
         volumes.reverse();
 
         drawChart(symbol,date_keys,prices,volumes);
+        sendMessage();
 	}
 
 	function drawChart(symbol,dates,prices,volumes){
@@ -107,6 +108,11 @@
         meta.setAttribute('name', 'viewport');
         meta.setAttribute('content', 'width=device-width');
         document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
+    function sendMessage(){
+        var aMessage = 'finish';
+        window.webkit.messageHandlers.interOp.postMessage(aMessage)
     }
 
 

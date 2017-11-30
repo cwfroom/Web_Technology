@@ -31,6 +31,7 @@
 
         parsed_price.reverse();
         drawChart(currentSymbol,parsed_price);
+        sendMessage();
 	}
 
 	function drawChart(symbol,data){
@@ -115,6 +116,11 @@
         meta.setAttribute('name', 'viewport');
         meta.setAttribute('content', 'width=device-width');
         document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+
+    function sendMessage(){
+        var aMessage = 'finish';
+        window.webkit.messageHandlers.interOp.postMessage(aMessage)
     }
 
 

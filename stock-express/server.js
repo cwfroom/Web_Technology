@@ -148,7 +148,11 @@ function fetchData(protocal, res, url,callback){
 
 function readFile(res,filename,callback){
 	fs.readFile(path.join(__dirname,filename), 'utf8', function(err,data){
-		callback(res,data);
+		if (err){
+			replyError(res);
+		}else{
+			callback(res,data);
+		}		
 	})
 }
 
@@ -183,6 +187,10 @@ function parsePrice(res,data){
 	var series = {};
 
 	var meta_data = data["Meta Data"];
+	if (meta_data === undefined){
+		replyError(res);
+		return;
+	}
 	var time_series = data["Time Series (Daily)"];
 	var date_keys = Object.keys(time_series);
 	var today_data = time_series[date_keys[0]];

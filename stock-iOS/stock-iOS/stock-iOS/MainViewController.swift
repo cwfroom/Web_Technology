@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Toast_Swift
 
 class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITableViewDelegate,UITableViewDataSource {
 
@@ -17,6 +18,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     @IBOutlet weak var refreshSwitch: UISwitch!
     @IBOutlet weak var symbolTextField: UITextField!
     @IBOutlet weak var autoCompleteTable: UITableView!
+    @IBOutlet weak var getQuoteButton: UIButton!
     
     var data = StockData.sharedInstance;
     var autoRefreshTimer = Timer();
@@ -101,17 +103,17 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         return UITableViewCell();
         
     }
+  
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if (tableView == favTable){
             data.currentSymbol = data.FavList[indexPath.row].symbol;
-            performSegue(withIdentifier: "showDetails", sender: self);
+            performSegue(withIdentifier: "showDetails", sender: getQuoteButton);
         }else if (tableView == autoCompleteTable){
             self.symbolTextField.text = data.AutoCompleteList[indexPath.row].value;
             self.symbolTextField.endEditing(true);
             hideAutoComplete();
         }
-
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
@@ -180,6 +182,13 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         }
         
     }
+    
+    
+    @IBAction func clearButtonTouch(_ sender: Any) {
+        symbolTextField.text = "";
+        hideAutoComplete();
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -196,27 +205,35 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         self.autoCompleteTable.alpha = 0.8;
         self.autoCompleteTable.isHidden = true;
         
-        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard(_:)));
+        //To lazy to type
+        self.symbolTextField.text = "AAPL";
         
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.getTap(_:)));
         view.addGestureRecognizer(tap)
     }
     
-    @objc func dismissKeyboard(_ tap : UIGestureRecognizer) {
+    @objc func getTap(_ tap : UIGestureRecognizer) {
+        let tapLocation = tap.location(in: autoCompleteTable);
         if (!autoCompleteTable.isHidden){
-            let tapLocation = tap.location(in: autoCompleteTable);
-            if (!autoCompleteTable.frame.contains(tapLocation)){
+            let indexPath = autoCompleteTable.indexPathForRow(at: tapLocation);
+            if (indexPath != nil){
+                self.symbolTextField.endEditing(true);
+                self.symbolTextField.text = data.AutoCompleteList[(indexPath?.row)!].value;
                 hideAutoComplete();
             }else{
-                let indexPath = autoCompleteTable.indexPathForRow(at: tapLocation);
-                if (indexPath != nil){
-                    self.symbolTextField.text = data.AutoCompleteList[(indexPath?.row)!].value;
-                    self.symbolTextField.endEditing(true);
-                    hideAutoComplete();
-                }
+                hideAutoComplete();
             }
         }else{
             symbolTextField.endEditing(true);
         }
+        
+        /*
+        let indexPath = favTable.indexPathForRow(at: tapLocation);
+        if (indexPath != nil){
+            print("favtable");
+            favTable.selectRow(at: indexPath, animated: true, scrollPosition: .none);
+        }
+        */
     }
     
     
@@ -240,7 +257,16 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     
     
     @IBAction func getQuoteButtonTouch(_ sender: Any) {
-        performSegue(withIdentifier: "showDetails", sender: sender);
+        let query = self.symbolTextField.text!;
+        let whitespaceSet = CharacterSet.whitespaces
+        if (query != "" && !query.trimmingCharacters(in: whitespaceSet).isEmpty) {
+            data.currentSymbol = query;
+            performSegue(withIdentifier: "showDetails", sender: sender);
+        }else{
+            view.makeToast("Please enter a valid symbol",duration:2.0,position:.center);
+        }
+        
+        
         
     }
     

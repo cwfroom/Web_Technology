@@ -30,7 +30,7 @@
                                 </constraints>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                 <connections>
                                     <action selector="symbolEditChange:" destination="BYZ-38-t0r" eventType="editingChanged" id="ewn-39-XSh"/>
                                 </connections>
@@ -47,6 +47,9 @@
                                 <rect key="frame" x="244" y="203" width="47" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Clear"/>
+                                <connections>
+                                    <action selector="clearButtonTouch:" destination="BYZ-38-t0r" eventType="touchDown" id="G4J-lI-7Kd"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Favorites" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="84u-mz-xul" userLabel="FavoritesLabel">
                                 <rect key="frame" x="31" y="269" width="73" height="21.5"/>
@@ -206,6 +209,7 @@
                     <connections>
                         <outlet property="autoCompleteTable" destination="P22-RL-o7F" id="efA-fW-Jhx"/>
                         <outlet property="favTable" destination="hqX-nT-rh4" id="s8A-Bk-kdK"/>
+                        <outlet property="getQuoteButton" destination="sm0-Ku-Wqv" id="KQx-Ft-bHJ"/>
                         <outlet property="orderbyPicker" destination="Cdu-Uw-apz" id="gqD-CS-ujt"/>
                         <outlet property="refreshButton" destination="pFK-Vm-z4I" id="AUS-Fl-Pte"/>
                         <outlet property="refreshSwitch" destination="fmk-7S-2EW" id="Tal-Xb-rOo"/>
@@ -361,29 +365,34 @@
                                                     <action selector="changeButtonTouch:" destination="Wus-b0-klg" eventType="touchDown" id="CZj-jE-VAY"/>
                                                 </connections>
                                             </button>
-                                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mq8-7k-9m0" userLabel="ChartView">
-                                                <rect key="frame" x="12" y="455.5" width="350" height="400"/>
-                                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lrP-dV-EZg" userLabel="ChartPlaceHolder">
+                                                <rect key="frame" x="12" y="460" width="350" height="400"/>
+                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" constant="350" id="PX3-UU-BqY"/>
-                                                    <constraint firstAttribute="height" constant="400" id="qcL-9J-qzy"/>
+                                                    <constraint firstAttribute="height" constant="400" id="2VJ-Ty-36e"/>
+                                                    <constraint firstAttribute="width" constant="350" id="nx8-Lw-oLP"/>
                                                 </constraints>
-                                                <wkWebViewConfiguration key="configuration">
-                                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
-                                                    <wkPreferences key="preferences"/>
-                                                </wkWebViewConfiguration>
-                                            </wkWebView>
+                                            </view>
+                                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="sNH-yp-VCr" userLabel="ChartActivityIndicator">
+                                                <rect key="frame" x="162" y="635.5" width="50" height="50"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="50" id="5Mj-0a-oLG"/>
+                                                    <constraint firstAttribute="width" constant="50" id="VtX-fH-oGs"/>
+                                                </constraints>
+                                            </activityIndicatorView>
                                         </subviews>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <constraints>
                                             <constraint firstItem="Tu6-F0-xUo" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" constant="-100" id="3U4-wj-Czu"/>
                                             <constraint firstItem="fk4-8z-4mK" firstAttribute="top" secondItem="Tu6-F0-xUo" secondAttribute="bottom" constant="20" id="EGM-sb-w0U"/>
+                                            <constraint firstItem="lrP-dV-EZg" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" id="EaF-0w-Eke"/>
                                             <constraint firstItem="xz2-Sd-gXd" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" constant="-120" id="TMM-m9-PTb"/>
                                             <constraint firstItem="BNP-aJ-sKu" firstAttribute="top" secondItem="Tu6-F0-xUo" secondAttribute="top" id="Yv7-Ss-jvD"/>
                                             <constraint firstItem="FvB-VP-qdg" firstAttribute="top" secondItem="Tu6-F0-xUo" secondAttribute="top" id="ZMM-rO-hWd"/>
                                             <constraint firstItem="b2d-rH-id6" firstAttribute="top" secondItem="fk4-8z-4mK" secondAttribute="bottom" id="Zky-Dh-MW1"/>
+                                            <constraint firstItem="sNH-yp-VCr" firstAttribute="centerX" secondItem="lrP-dV-EZg" secondAttribute="centerX" id="bop-uA-vJg"/>
                                             <constraint firstItem="ylk-jz-ekn" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" constant="120" id="f0A-aD-DPx"/>
-                                            <constraint firstItem="Mq8-7k-9m0" firstAttribute="top" secondItem="b2d-rH-id6" secondAttribute="bottom" constant="5" id="fgN-VL-7C7"/>
+                                            <constraint firstItem="lrP-dV-EZg" firstAttribute="top" secondItem="b2d-rH-id6" secondAttribute="bottom" constant="10" id="fgN-VL-7C7"/>
                                             <constraint firstItem="xz2-Sd-gXd" firstAttribute="top" secondItem="fk4-8z-4mK" secondAttribute="bottom" constant="15" id="fra-f5-RZO"/>
                                             <constraint firstItem="fk4-8z-4mK" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" id="g54-28-nS4"/>
                                             <constraint firstItem="FvB-VP-qdg" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" constant="100" id="hA8-mg-6k4"/>
@@ -391,7 +400,7 @@
                                             <constraint firstItem="ylk-jz-ekn" firstAttribute="centerY" secondItem="xz2-Sd-gXd" secondAttribute="centerY" id="npZ-Kh-w3z"/>
                                             <constraint firstItem="Tu6-F0-xUo" firstAttribute="top" secondItem="4Fp-zA-KaT" secondAttribute="top" constant="10" id="o53-bY-0Tv"/>
                                             <constraint firstItem="b2d-rH-id6" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" id="pjC-Xs-LVG"/>
-                                            <constraint firstItem="Mq8-7k-9m0" firstAttribute="centerX" secondItem="4Fp-zA-KaT" secondAttribute="centerX" id="uVY-6U-yRa"/>
+                                            <constraint firstItem="sNH-yp-VCr" firstAttribute="centerY" secondItem="lrP-dV-EZg" secondAttribute="centerY" id="xbi-96-sgX"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -419,11 +428,13 @@
                     <connections>
                         <outlet property="FBButton" destination="BNP-aJ-sKu" id="NEn-xB-lc7"/>
                         <outlet property="changeButton" destination="ylk-jz-ekn" id="R7v-BA-tUJ"/>
+                        <outlet property="chartActivityIndicator" destination="sNH-yp-VCr" id="E9K-xo-jE5"/>
+                        <outlet property="chartPlaceHolder" destination="lrP-dV-EZg" id="uSL-mb-D19"/>
                         <outlet property="currentTable" destination="fk4-8z-4mK" id="uIM-ag-ZMA"/>
                         <outlet property="favButton" destination="FvB-VP-qdg" id="rjR-aa-qCu"/>
                         <outlet property="indicatorPicker" destination="b2d-rH-id6" id="PYl-X8-xb4"/>
+                        <outlet property="innerView" destination="4Fp-zA-KaT" id="Nbt-1y-fam"/>
                         <outlet property="scrollView" destination="Gt8-02-gpx" id="ThO-aP-ZJi"/>
-                        <outlet property="webView" destination="Mq8-7k-9m0" id="TIy-cg-sep"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="exE-HE-fyn" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -438,27 +449,38 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E1k-Cd-eBM">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lLS-pd-6RM" userLabel="ChartPlaceholder">
                                 <rect key="frame" x="12" y="20" width="350" height="400"/>
-                                <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="350" id="9jr-0K-rk9"/>
-                                    <constraint firstAttribute="height" constant="400" id="xkM-XZ-Tjw"/>
+                                    <constraint firstAttribute="width" constant="350" id="0uw-MK-5zl"/>
+                                    <constraint firstAttribute="height" constant="400" id="le4-XK-tRN"/>
                                 </constraints>
-                                <wkWebViewConfiguration key="configuration">
-                                    <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
-                                    <wkPreferences key="preferences"/>
-                                </wkWebViewConfiguration>
-                            </wkWebView>
+                            </view>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="QF7-76-NTV" userLabel="ChartActivityIndicator">
+                                <rect key="frame" x="177" y="210" width="20" height="20"/>
+                            </activityIndicatorView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Failed to load historical data" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WmV-Si-Tax" userLabel="ErrorLabel">
+                                <rect key="frame" x="80.5" y="209.5" width="213.5" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="E1k-Cd-eBM" firstAttribute="top" secondItem="aMy-z0-R1N" secondAttribute="top" id="TYf-dJ-SgB"/>
-                            <constraint firstItem="E1k-Cd-eBM" firstAttribute="centerX" secondItem="WNF-eR-YHa" secondAttribute="centerX" id="pw5-T4-Df9"/>
+                            <constraint firstItem="WmV-Si-Tax" firstAttribute="centerY" secondItem="lLS-pd-6RM" secondAttribute="centerY" id="9Xc-Tl-4BJ"/>
+                            <constraint firstItem="QF7-76-NTV" firstAttribute="centerY" secondItem="lLS-pd-6RM" secondAttribute="centerY" id="BoU-jf-tZn"/>
+                            <constraint firstItem="lLS-pd-6RM" firstAttribute="centerX" secondItem="WNF-eR-YHa" secondAttribute="centerX" id="DLG-He-3dZ"/>
+                            <constraint firstItem="QF7-76-NTV" firstAttribute="centerX" secondItem="lLS-pd-6RM" secondAttribute="centerX" id="UnO-eK-0HE"/>
+                            <constraint firstItem="lLS-pd-6RM" firstAttribute="top" secondItem="aMy-z0-R1N" secondAttribute="top" id="h1X-x6-22U"/>
+                            <constraint firstItem="WmV-Si-Tax" firstAttribute="centerX" secondItem="WNF-eR-YHa" secondAttribute="centerX" id="rCE-Sm-Ww7"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="aMy-z0-R1N"/>
                     </view>
                     <connections>
-                        <outlet property="webView" destination="E1k-Cd-eBM" id="YwE-rg-qH0"/>
+                        <outlet property="chartActivityIndicator" destination="QF7-76-NTV" id="Jjq-mm-bmK"/>
+                        <outlet property="chartPlaceHolder" destination="lLS-pd-6RM" id="wQg-MB-2ac"/>
+                        <outlet property="errorLabel" destination="WmV-Si-Tax" id="y7a-39-Fl1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tX4-zu-2f2" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -473,6 +495,12 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Failed to load news data" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IS8-vf-WDU" userLabel="ErrorLabel">
+                                <rect key="frame" x="94.5" y="323" width="184.5" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelectionDuringEditing="YES" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="jmT-lZ-hcN">
                                 <rect key="frame" x="7.5" y="20" width="360" height="600"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -508,16 +536,25 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="mCh-5M-nBu" userLabel="TableActivityIndicator">
+                                <rect key="frame" x="177" y="323" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="mCh-5M-nBu" firstAttribute="centerY" secondItem="QRH-Xb-2qM" secondAttribute="centerY" id="5Qv-zV-QD9"/>
                             <constraint firstItem="jmT-lZ-hcN" firstAttribute="centerX" secondItem="QRH-Xb-2qM" secondAttribute="centerX" id="DCI-Rf-h7E"/>
+                            <constraint firstItem="mCh-5M-nBu" firstAttribute="centerX" secondItem="QRH-Xb-2qM" secondAttribute="centerX" id="R0r-hJ-unh"/>
+                            <constraint firstItem="IS8-vf-WDU" firstAttribute="centerX" secondItem="QRH-Xb-2qM" secondAttribute="centerX" id="Yth-GR-OpV"/>
+                            <constraint firstItem="IS8-vf-WDU" firstAttribute="centerY" secondItem="QRH-Xb-2qM" secondAttribute="centerY" id="e6K-Em-m7O"/>
                             <constraint firstItem="jmT-lZ-hcN" firstAttribute="top" secondItem="QRH-Xb-2qM" secondAttribute="top" constant="20" id="pwD-Ym-N7B"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="qSQ-PV-fTx"/>
                     </view>
                     <connections>
+                        <outlet property="errorLabel" destination="IS8-vf-WDU" id="AKW-8Q-3Yp"/>
                         <outlet property="newsTable" destination="jmT-lZ-hcN" id="Dcq-7t-nHf"/>
+                        <outlet property="tableActivityIndicator" destination="mCh-5M-nBu" id="bTU-RC-YN9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Gmh-om-1kj" userLabel="First Responder" sceneMemberID="firstResponder"/>

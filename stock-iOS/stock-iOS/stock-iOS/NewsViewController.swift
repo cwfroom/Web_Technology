@@ -12,6 +12,8 @@ class NewsViewController: UIViewController, UITableViewDelegate, UITableViewData
      var data = StockData.sharedInstance;
     
     @IBOutlet weak var newsTable: UITableView!
+    @IBOutlet weak var tableActivityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var errorLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,12 +34,21 @@ class NewsViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        data.getNews(newsTable: self);
+        self.newsTable.isHidden = true;
+        if (data.isError){
+            errorLabel.isHidden = false;
+        }else{
+            errorLabel.isHidden = true;
+            tableActivityIndicator.startAnimating();
+            data.getNews(newsTable: self);
+        }
         super.viewDidAppear(animated);
     }
     
     func reloadData(){
         DispatchQueue.main.async {
+            self.tableActivityIndicator.stopAnimating();
+            self.newsTable.isHidden = false;
             self.newsTable.reloadData();
         }
     }

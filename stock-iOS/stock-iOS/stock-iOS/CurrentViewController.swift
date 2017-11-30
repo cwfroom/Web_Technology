@@ -8,17 +8,22 @@
 
 import UIKit
 import WebKit
+import SwiftSpinner
+import Toast_Swift
 
-class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate,UIPickerViewDataSource {
+class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate,UIPickerViewDataSource, WKNavigationDelegate, WKScriptMessageHandler {
     
     @IBOutlet weak var currentTable: UITableView!
     @IBOutlet weak var indicatorPicker: UIPickerView!
     @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var webView: WKWebView!
     @IBOutlet weak var changeButton: UIButton!
-    
     @IBOutlet weak var favButton: UIButton!
     @IBOutlet weak var FBButton: UIButton!
+    @IBOutlet weak var chartPlaceHolder: UIView!
+    @IBOutlet weak var innerView: UIView!
+    var chartView : WKWebView = WKWebView();
+    //var chartActivityIndicator : UIActivityIndicatorView = UIActivityIndicatorView();
+    @IBOutlet weak var chartActivityIndicator: UIActivityIndicatorView!
     
     let data = StockData.sharedInstance;
     let prompts = ["Stock Symbol","Last Price","Change","Timestamp","Open","Close","Day's Range","Volume"];
@@ -47,9 +52,13 @@ class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func reloadData(){
+        
         DispatchQueue.main.async {
+            SwiftSpinner.hide();
             self.currentTable.reloadData();
         }
+        //Start loading price chart after the table data is ready
+        loadPriceChart();
     }
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1;
@@ -85,9 +94,13 @@ class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewD
         currentTable.dataSource = self;
         indicatorPicker.delegate = self;
         indicatorPicker.dataSource = self;
+        let config = WKWebViewConfiguration();
+        config.userContentController.add(self,name:"interOp");
+        chartView = WKWebView(frame:chartPlaceHolder.frame,configuration: config);
+        chartView.navigationDelegate = self;
+        innerView.addSubview(chartView);
         
-        data.getPrice(currentView: self);
-        // Do any additional setup after loading the view.
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -99,11 +112,13 @@ class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewD
         super.viewDidAppear(animated);
         scrollView.contentSize = CGSize(width: scrollView.frame.size.width,height:1000);
         self.indicatorPicker.selectRow(0, inComponent: 0, animated: false);
-        loadPriceChart();
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
+        data.getPrice(currentView: self);
+        SwiftSpinner.show("Loading...");
         checkFavButton();
         changeButton.isEnabled = false;
     }
@@ -137,14 +152,19 @@ class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewD
         let baseUrl = URL(fileURLWithPath: folderPath, isDirectory: true)
         
         let jsURL = "<script>var apiURL = \"" + self.data.getPriceURL() +  "\"</script>"
-        
-        do {
-            let html = try String(contentsOfFile: htmlPath!);
-            let htmlString = jsURL + html;
-            webView.loadHTMLString(htmlString as String, baseURL: baseUrl)
-        } catch {
-            print("HTML cannot be loaded");
+        DispatchQueue.main.async {
+            self.chartView.isHidden = true;
+            self.chartActivityIndicator.startAnimating();
+            do {
+                let html = try String(contentsOfFile: htmlPath!);
+                let htmlString = jsURL + html;
+                self.chartView.loadHTMLString(htmlString as String, baseURL: baseUrl)
+            } catch {
+                print("HTML cannot be loaded");
+            }
         }
+        
+        
     }
     
 
@@ -155,18 +175,38 @@ class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         let jsURL = "<script>var apiURL = \"" + self.data.getIndicatorURL(indicator: indicators[index]) + "\";var lines=" + String(indicatorLines[index]) + ";</script>";
         
-        //print(jsURL);
-        
-        
-        do {
-            let html = try String(contentsOfFile: htmlPath!);
-            let htmlString = jsURL + html;
-            webView.loadHTMLString(htmlString as String, baseURL: baseUrl)
-        } catch {
-            print("HTML cannot be loaded");
+        DispatchQueue.main.async {
+            self.chartView.isHidden = true;
+            self.chartActivityIndicator.startAnimating();
+            do {
+                let html = try String(contentsOfFile: htmlPath!);
+                let htmlString = jsURL + html;
+                self.chartView.loadHTMLString(htmlString as String, baseURL: baseUrl)
+            } catch {
+                print("HTML cannot be loaded");
+            }
         }
         
     }
+    
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if (message.body as! String == "finish"){
+            print("Webview finished loading");
+            DispatchQueue.main.async {
+                self.chartView.isHidden = false;
+                self.chartActivityIndicator.stopAnimating();
+            }
+        }
+    }
+    
+    func toastError(){
+        DispatchQueue.main.async {
+            SwiftSpinner.hide();
+            self.view.makeToast("Failed to load price",duration:2.0,position:.center);
+        }
+    }
+    
+   
 
     /*
     // MARK: - Navigation

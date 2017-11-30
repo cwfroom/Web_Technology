@@ -24,6 +24,7 @@
         }else if (lines == 3){
             drawTripleLineChart(data);
         }
+        sendMessage();
 
 	}
 
@@ -327,6 +328,11 @@
                         ]
             });
                                                 
+    }
+
+    function sendMessage(){
+        var aMessage = 'finish';
+        window.webkit.messageHandlers.interOp.postMessage(aMessage)
     }
 
 

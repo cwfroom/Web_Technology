@@ -58,6 +58,22 @@ struct DetailItem{
 }
 
 extension DetailItem{
+    init?(){
+        self.symbol = "";
+        self.lastPrice = "";
+        self.change = "";
+        self.changePercent = "";
+        self.timestamp = "";
+        self.open = "";
+        self.close = "";
+        self.range = "";
+        self.volume = "";
+        
+        self.arr = ["","","","","","","",""];
+    }
+}
+
+extension DetailItem{
     init?(json : [String : Any]){
         let symbol = json["symbol"] as! String;
         let lastPrice = json["last_price"] as! String;
@@ -119,6 +135,8 @@ class StockData{
     let sortByData = ["Default","Symbol","Price","Change","Percent"];
     let orderByData = ["Ascending","Descending"];
     
+    var isError : Bool = false;
+    
     init() {
         currentSymbol = "AAPL";
         //For debugging
@@ -155,6 +173,7 @@ class StockData{
     }
     
     func getPrice(currentView : CurrentViewController){
+        currentDetail = DetailItem();
         let requestURL = URL(string: self.getPriceURL());
         
         let task = URLSession.shared.dataTask(with: requestURL!) { data, response, error in
@@ -166,14 +185,20 @@ class StockData{
                 print("Data is empty");
                 return;
             }
-            
-            let json = try! JSONSerialization.jsonObject(with: data, options: [])
-            if let json = json as? [String : Any]{
-                if let jTable = json["table"] as? [String : Any]{
-                    self.currentDetail = DetailItem(json: jTable);
+            do{
+                let json = try JSONSerialization.jsonObject(with: data, options: [])
+                if let json = json as? [String : Any]{
+                    if let jTable = json["table"] as? [String : Any]{
+                        self.currentDetail = DetailItem(json: jTable);
+                    }
                 }
+                currentView.reloadData();
+                self.isError = false;
+            }catch{
+                print("Error in GetPrice");
+                self.isError = true;
+                currentView.toastError();
             }
-            currentView.reloadData();
             
         }
         task.resume();
