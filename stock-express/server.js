@@ -58,6 +58,9 @@ app.listen(port, function () {
 
 function autoComplete(req,res){
 	var symbol = req.params.symbol;
+	if (debug){
+		console.log(symbol);
+	}
 	fetchData(http,res,autoCompleteURL+symbol, autoCompleteParse);
 }
 
@@ -165,7 +168,7 @@ function autoCompleteParse(res, json){
 }
 
 function replyError(res){
-	res.send("Error");
+	res.send('Error');
 }
 
 function parsePrice(res,data){

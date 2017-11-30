@@ -31,6 +31,9 @@
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <action selector="symbolEditChange:" destination="BYZ-38-t0r" eventType="editingChanged" id="ewn-39-XSh"/>
+                                </connections>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sm0-Ku-Wqv" userLabel="GetQuoteButton">
                                 <rect key="frame" x="62.5" y="203" width="90" height="36"/>
@@ -147,6 +150,24 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <tableView clipsSubviews="YES" alpha="0.80000000000000004" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="P22-RL-o7F" userLabel="AutoCompleteTable">
+                                <rect key="frame" x="37.5" y="178" width="300" height="250"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="300" id="bn5-SM-vHg"/>
+                                    <constraint firstAttribute="height" constant="250" id="oNG-4d-jJp"/>
+                                </constraints>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="AutoCompleteTableCell" id="SPQ-Pd-gkg" userLabel="AutoCompleteTableCell">
+                                        <rect key="frame" x="0.0" y="28" width="300" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="SPQ-Pd-gkg" id="2sJ-P4-nXc">
+                                            <rect key="frame" x="0.0" y="0.0" width="300" height="44"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" red="0.45009386540000001" green="0.98132258650000004" blue="0.4743030667" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -163,6 +184,7 @@
                             <constraint firstItem="Cdu-Uw-apz" firstAttribute="top" secondItem="K69-JC-i5I" secondAttribute="bottom" constant="15" id="Hie-wm-ti5"/>
                             <constraint firstItem="K69-JC-i5I" firstAttribute="top" secondItem="x4u-aG-GIa" secondAttribute="bottom" constant="30" id="KgN-k5-ROi"/>
                             <constraint firstItem="fmk-7S-2EW" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="85" id="MJu-Ch-MSk"/>
+                            <constraint firstItem="P22-RL-o7F" firstAttribute="top" secondItem="VeG-04-aiG" secondAttribute="bottom" constant="5" id="OZM-Vi-ZW1"/>
                             <constraint firstItem="84u-mz-xul" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-120" id="QCB-vV-EZN"/>
                             <constraint firstItem="w2u-dc-QJa" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-150" id="RYK-qB-FKm"/>
                             <constraint firstItem="sm0-Ku-Wqv" firstAttribute="top" secondItem="VeG-04-aiG" secondAttribute="bottom" constant="30" id="U0a-rP-F2K"/>
@@ -170,6 +192,7 @@
                             <constraint firstItem="7Mp-nU-CUv" firstAttribute="top" secondItem="84u-mz-xul" secondAttribute="bottom" constant="15" id="VnV-Ke-OAh"/>
                             <constraint firstItem="7Mp-nU-CUv" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-70" id="Wgn-wK-Hit"/>
                             <constraint firstItem="NQs-pN-rRk" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="28" id="Yrv-4Z-nKq"/>
+                            <constraint firstItem="P22-RL-o7F" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="YzV-Aw-a7N"/>
                             <constraint firstItem="84u-mz-xul" firstAttribute="top" secondItem="sm0-Ku-Wqv" secondAttribute="bottom" constant="30" id="bYz-bj-J2R"/>
                             <constraint firstItem="VeG-04-aiG" firstAttribute="top" secondItem="Tsn-oZ-yId" secondAttribute="bottom" constant="30" id="c98-FH-RIJ"/>
                             <constraint firstItem="K69-JC-i5I" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="g24-Nz-ovm"/>
@@ -181,11 +204,13 @@
                     </view>
                     <navigationItem key="navigationItem" id="yEk-WO-jtF"/>
                     <connections>
+                        <outlet property="autoCompleteTable" destination="P22-RL-o7F" id="efA-fW-Jhx"/>
                         <outlet property="favTable" destination="hqX-nT-rh4" id="s8A-Bk-kdK"/>
                         <outlet property="orderbyPicker" destination="Cdu-Uw-apz" id="gqD-CS-ujt"/>
                         <outlet property="refreshButton" destination="pFK-Vm-z4I" id="AUS-Fl-Pte"/>
                         <outlet property="refreshSwitch" destination="fmk-7S-2EW" id="Tal-Xb-rOo"/>
                         <outlet property="sortbyPicker" destination="7Mp-nU-CUv" id="YTF-d3-0SV"/>
+                        <outlet property="symbolTextField" destination="VeG-04-aiG" id="S14-xd-Pq5"/>
                         <segue destination="JeH-jA-Ud2" kind="showDetail" identifier="showDetails" action="showViewController:sender:" id="iCf-VE-sDu"/>
                     </connections>
                 </viewController>

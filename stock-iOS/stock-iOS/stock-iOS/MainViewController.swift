@@ -10,12 +10,13 @@ import UIKit
 
 class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITableViewDelegate,UITableViewDataSource {
 
-    
     @IBOutlet weak var sortbyPicker: UIPickerView!
     @IBOutlet weak var orderbyPicker: UIPickerView!
     @IBOutlet weak var favTable: UITableView!
     @IBOutlet weak var refreshButton: UIButton!
     @IBOutlet weak var refreshSwitch: UISwitch!
+    @IBOutlet weak var symbolTextField: UITextField!
+    @IBOutlet weak var autoCompleteTable: UITableView!
     
     var data = StockData.sharedInstance;
     var autoRefreshTimer = Timer();
@@ -35,17 +36,6 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         }
     }
     
-    /*
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if (pickerView == self.sortbyPicker){
-            return sortByData[row];
-        }else if(pickerView == self.orderbyPicker){
-            return orderByData[row];
-        }else{
-            return "";
-        }
-    }
- */
  
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = view as! UILabel!
@@ -76,43 +66,73 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         let orderby = self.orderbyPicker.selectedRow(inComponent: 0);
         
         data.sortFavList(sortby: sortby, orderby: orderby, ui: self);
-        //print (sortby + " " + orderby )
     }
     
-    //FavTable
+    //Tables
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return data.FavList.count;
+        if (tableView == favTable){
+            return data.FavList.count;
+        }else if (tableView == autoCompleteTable){
+            return data.AutoCompleteList.count;
+        }
+        return 0;
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FavTableCell")! as! FavTableCell;
-        cell.symbolLabel.text = data.FavList[indexPath.row].symbol;
-        cell.priceLabel.text = String(data.FavList[indexPath.row].price);
-        cell.changeLabel.text = data.FavList[indexPath.row].changeStr;
-        if (data.FavList[indexPath.row].change >= 0){
-            cell.changeLabel.textColor = UIColor.green;
-        }else{
-            cell.changeLabel.textColor = UIColor.red;
+        if (tableView == favTable){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "FavTableCell")! as! FavTableCell;
+            cell.symbolLabel.text = data.FavList[indexPath.row].symbol;
+            cell.priceLabel.text = String(data.FavList[indexPath.row].price);
+            cell.changeLabel.text = data.FavList[indexPath.row].changeStr;
+            if (data.FavList[indexPath.row].change >= 0){
+                cell.changeLabel.textColor = UIColor.green;
+            }else{
+                cell.changeLabel.textColor = UIColor.red;
+            }
+            
+            return cell;
+        }else if(tableView == autoCompleteTable){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "AutoCompleteTableCell")!
+            cell.textLabel?.text = data.AutoCompleteList[indexPath.row].display;
+            cell.textLabel?.font = UIFont.systemFont(ofSize: 14);
+            return cell;
         }
         
-        return cell;
+        return UITableViewCell();
+        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        data.currentSymbol = data.FavList[indexPath.row].symbol;
-        performSegue(withIdentifier: "showDetails", sender: self);
+        if (tableView == favTable){
+            data.currentSymbol = data.FavList[indexPath.row].symbol;
+            performSegue(withIdentifier: "showDetails", sender: self);
+        }else if (tableView == autoCompleteTable){
+            self.symbolTextField.text = data.AutoCompleteList[indexPath.row].value;
+            self.symbolTextField.endEditing(true);
+            hideAutoComplete();
+        }
+
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if (editingStyle == .delete){
-            data.removeFav(index: indexPath.row);
-            tableView.reloadData();
+        if (tableView == favTable){
+            if (editingStyle == .delete){
+                data.removeFav(index: indexPath.row);
+                tableView.reloadData();
+            }
         }
+        
     }
 
-    func reloadData(){
+    func reloadFavTable(){
         DispatchQueue.main.async {
             self.favTable.reloadData();
+        }
+    }
+    
+    func reloadAutoCompleteTable(){
+        DispatchQueue.main.async {
+            self.autoCompleteTable.reloadData();
         }
     }
     
@@ -140,6 +160,26 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         autoRefreshTimer.invalidate();
     }
     
+    func showAutoComplete(){
+        autoCompleteTable.isHidden = false;
+    }
+    
+    func hideAutoComplete(){
+        autoCompleteTable.isHidden = true;
+    }
+    
+    @IBAction func symbolEditChange(_ sender: Any) {
+        let query = self.symbolTextField.text!;
+        let whitespaceSet = CharacterSet.whitespaces
+        if (query != "" && !query.trimmingCharacters(in: whitespaceSet).isEmpty) {
+            print(query);
+            showAutoComplete();
+            data.getAutoComplete(query: query, ui: self);
+        }else{
+            hideAutoComplete();
+        }
+        
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -151,7 +191,36 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         self.orderbyPicker.isUserInteractionEnabled = false;
         self.favTable.delegate = self;
         self.favTable.dataSource = self;
+        self.autoCompleteTable.delegate = self;
+        self.autoCompleteTable.dataSource = self;
+        self.autoCompleteTable.alpha = 0.8;
+        self.autoCompleteTable.isHidden = true;
+        
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.dismissKeyboard(_:)));
+        
+        view.addGestureRecognizer(tap)
     }
+    
+    @objc func dismissKeyboard(_ tap : UIGestureRecognizer) {
+        if (!autoCompleteTable.isHidden){
+            let tapLocation = tap.location(in: autoCompleteTable);
+            if (!autoCompleteTable.frame.contains(tapLocation)){
+                hideAutoComplete();
+            }else{
+                let indexPath = autoCompleteTable.indexPathForRow(at: tapLocation);
+                if (indexPath != nil){
+                    self.symbolTextField.text = data.AutoCompleteList[(indexPath?.row)!].value;
+                    self.symbolTextField.endEditing(true);
+                    hideAutoComplete();
+                }
+            }
+        }else{
+            symbolTextField.endEditing(true);
+        }
+    }
+    
+    
+    
     
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.setNavigationBarHidden(true, animated: animated);

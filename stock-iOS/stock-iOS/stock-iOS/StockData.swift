@@ -29,9 +29,9 @@ extension NewsItem{
 }
 
 struct FavItem{
-    var symbol,changeStr : String;
-    var price,change,changePercent : Float;
-    var volume : Int;
+    let symbol,changeStr : String;
+    let price,change,changePercent : Float;
+    let volume : Int;
 }
 
 extension FavItem{
@@ -85,6 +85,20 @@ extension DetailItem{
         
     }
 }
+
+struct AutoCompleteItem{
+    let value : String;
+    let display : String;
+}
+
+extension AutoCompleteItem{
+    init?(json : [String : Any]) {
+        let value = json["value"] as! String;
+        let display = json["display"] as! String;
+        self.value = value;
+        self.display = display;
+    }
+}
  
 
 
@@ -100,6 +114,7 @@ class StockData{
     var NewsList : [NewsItem] = [];
     var FavList : [FavItem] = [];
     var defaultOrder : [FavItem] = [];
+    var AutoCompleteList : [AutoCompleteItem] = [];
     
     let sortByData = ["Default","Symbol","Price","Change","Percent"];
     let orderByData = ["Ascending","Descending"];
@@ -133,6 +148,10 @@ class StockData{
     
     func getNewsURL() -> String{
         return serverAddr + "/news/" + currentSymbol;
+    }
+    
+    func getAutoCompleteURL(query : String) -> String{
+        return serverAddr + "/autocomplete/" + query;
     }
     
     func getPrice(currentView : CurrentViewController){
@@ -257,7 +276,7 @@ class StockData{
                     self.getPriceFast(index: index + 1, count: count, ui: ui);
                 }else{
                     self.FavList.removeFirst(count);
-                    ui.reloadData();
+                    ui.reloadFavTable();
                 }
             }
 
@@ -311,8 +330,44 @@ class StockData{
             break;
         }
         
-        
-        ui.reloadData();
+        ui.reloadFavTable();
+    }
+    
+    func getAutoComplete(query : String, ui : MainViewController){
+        AutoCompleteList = [];
+        let requestURL = URL(string: self.getAutoCompleteURL(query: query));
+        let task = URLSession.shared.dataTask(with: requestURL!) { data, response, error in
+            guard error == nil else {
+                print(error!)
+                return;
+            }
+            guard let data = data else {
+                print("Data is empty");
+                return;
+            }
+            do{
+                let json = try JSONSerialization.jsonObject(with: data, options: []);
+                
+                if let jAutoCompleteArray = json as? [Any]{
+                    var count :Int  = 0;
+                    for jAutoComplete in jAutoCompleteArray {
+                        if (count >= 5){
+                            break;
+                        }
+                        if let iAutoCompleteItem = AutoCompleteItem(json:jAutoComplete as! [String : Any]){
+                            self.AutoCompleteList.append(iAutoCompleteItem);
+                        }
+                        count += 1;
+                    }
+                }
+            }catch{
+                print("Error in AutoComplete");
+            }
+
+            ui.reloadAutoCompleteTable();
+            
+        }
+        task.resume();
     }
     
 }
