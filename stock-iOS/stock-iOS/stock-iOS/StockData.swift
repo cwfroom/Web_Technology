@@ -99,6 +99,10 @@ class StockData{
     var currentDetail : DetailItem?;
     var NewsList : [NewsItem] = [];
     var FavList : [FavItem] = [];
+    var defaultOrder : [FavItem] = [];
+    
+    let sortByData = ["Default","Symbol","Price","Change","Percent"];
+    let orderByData = ["Ascending","Descending"];
     
     init() {
         currentSymbol = "AAPL";
@@ -107,6 +111,7 @@ class StockData{
         let B = FavItem(symbol: "AMZN", changeStr: "2(5%)", price: 150, change: 2, changePercent: 0.05, volume: 50);
         FavList.append(A);
         FavList.append(B);
+        defaultOrder = FavList;
     }
     
     
@@ -203,6 +208,7 @@ class StockData{
         
         let fav = FavItem(symbol: currentSymbol, changeStr: changeStr, price: price, change: change, changePercent: changePercent, volume: volume);
         FavList.append(fav);
+        defaultOrder = FavList;
     }
     
     func removeFav(symbol : String){
@@ -215,10 +221,12 @@ class StockData{
         }
         
         FavList.remove(at: index);
+        defaultOrder = FavList;
     }
     
     func removeFav(index : Int){
         FavList.remove(at: index);
+        defaultOrder = FavList;
     }
     
     func updateFav(ui : MainViewController){
@@ -256,9 +264,55 @@ class StockData{
             
         }
         task.resume();
+    }
+    
+    func sortFavList(sortby : Int, orderby : Int, ui:MainViewController){
+        var asc : Bool = true;
+        if (orderby == 0){
+            asc = true;
+        }else if(orderby == 1){
+            asc = false;
+        }
+        //["Default","Symbol","Price","Change","Percent"];
+        
+        switch sortby {
+        case 0:
+            FavList = defaultOrder;
+            break;
+        case 1:
+            if (asc){
+                FavList.sort{$0.symbol < $1.symbol};
+            }else{
+                FavList.sort{$0.symbol > $1.symbol};
+            }
+            break;
+        case 2:
+            if (asc){
+                FavList.sort{$0.price < $1.price}
+            }else{
+                FavList.sort{$0.price > $1.price}
+            }
+            break;
+        case 3:
+            if (asc){
+                FavList.sort{$0.change < $1.change}
+            }else{
+                FavList.sort{$0.change > $1.change}
+            }
+            break;
+        case 4:
+            if (asc){
+                FavList.sort{$0.changePercent < $1.changePercent}
+            }else{
+                FavList.sort{$0.changePercent > $1.changePercent}
+            }
+            break;
+        default:
+            break;
+        }
         
         
-        
+        ui.reloadData();
     }
     
 }

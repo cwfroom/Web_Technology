@@ -17,9 +17,6 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     @IBOutlet weak var refreshButton: UIButton!
     @IBOutlet weak var refreshSwitch: UISwitch!
     
-    let sortByData = ["Default","Symbol","Price","Change","Percent"];
-    let orderByData = ["Ascending","Desceding"];
-    
     var data = StockData.sharedInstance;
     var autoRefreshTimer = Timer();
     
@@ -30,14 +27,15 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         if (pickerView == self.sortbyPicker){
-            return self.sortByData.count;
+            return self.data.sortByData.count;
         }else if(pickerView == self.orderbyPicker){
-            return self.orderByData.count;
+            return self.data.orderByData.count;
         }else{
             return 0;
         }
     }
     
+    /*
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         if (pickerView == self.sortbyPicker){
             return sortByData[row];
@@ -47,6 +45,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             return "";
         }
     }
+ */
  
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var label = view as! UILabel!
@@ -55,16 +54,29 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         }
         var dataStr = "";
         if (pickerView == self.sortbyPicker){
-            dataStr =  sortByData[row];
+            dataStr = data.sortByData[row];
         }else if(pickerView == self.orderbyPicker){
-            dataStr = orderByData[row];
+            dataStr = data.orderByData[row];
         }
         
         let title = NSAttributedString(string: dataStr, attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 16.0, weight: UIFont.Weight.regular)]);
         label?.attributedText = title;
         label?.textAlignment = .center;
         return label!;
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let sortby = self.sortbyPicker.selectedRow(inComponent: 0);
+        if (sortby != 0){
+            self.orderbyPicker.isUserInteractionEnabled = true;
+        }else{
+            self.orderbyPicker.isUserInteractionEnabled = false;
+        }
         
+        let orderby = self.orderbyPicker.selectedRow(inComponent: 0);
+        
+        data.sortFavList(sortby: sortby, orderby: orderby, ui: self);
+        //print (sortby + " " + orderby )
     }
     
     //FavTable
@@ -136,6 +148,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         self.sortbyPicker.dataSource = self;
         self.orderbyPicker.delegate = self;
         self.orderbyPicker.dataSource = self;
+        self.orderbyPicker.isUserInteractionEnabled = false;
         self.favTable.delegate = self;
         self.favTable.dataSource = self;
     }
