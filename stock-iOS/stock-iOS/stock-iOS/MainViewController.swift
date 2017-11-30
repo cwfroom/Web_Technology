@@ -14,12 +14,15 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     @IBOutlet weak var sortbyPicker: UIPickerView!
     @IBOutlet weak var orderbyPicker: UIPickerView!
     @IBOutlet weak var favTable: UITableView!
+    @IBOutlet weak var refreshButton: UIButton!
+    @IBOutlet weak var refreshSwitch: UISwitch!
     
     let sortByData = ["Default","Symbol","Price","Change","Percent"];
     let orderByData = ["Ascending","Desceding"];
     
     var data = StockData.sharedInstance;
-
+    var autoRefreshTimer = Timer();
+    
     //UIPickerView
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1;
@@ -74,10 +77,56 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         cell.symbolLabel.text = data.FavList[indexPath.row].symbol;
         cell.priceLabel.text = String(data.FavList[indexPath.row].price);
         cell.changeLabel.text = data.FavList[indexPath.row].changeStr;
+        if (data.FavList[indexPath.row].change >= 0){
+            cell.changeLabel.textColor = UIColor.green;
+        }else{
+            cell.changeLabel.textColor = UIColor.red;
+        }
         
         return cell;
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        data.currentSymbol = data.FavList[indexPath.row].symbol;
+        performSegue(withIdentifier: "showDetails", sender: self);
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == .delete){
+            data.removeFav(index: indexPath.row);
+            tableView.reloadData();
+        }
+    }
 
+    func reloadData(){
+        DispatchQueue.main.async {
+            self.favTable.reloadData();
+        }
+    }
+    
+    @objc func updateFav(){
+        data.updateFav(ui:self);
+    }
+    
+    @IBAction func refreshButtonTouch(_ sender: Any) {
+        updateFav();
+    }
+    
+    @IBAction func refreshSwitchChange(_ sender: Any) {
+        if (self.refreshSwitch.isOn){
+            startAutoRefresh();
+        }else{
+            stopAutoRefresh();
+        }
+    }
+    
+    func startAutoRefresh(){
+        autoRefreshTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.updateFav), userInfo: nil, repeats: true)
+    }
+    
+    func stopAutoRefresh(){
+        autoRefreshTimer.invalidate();
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()

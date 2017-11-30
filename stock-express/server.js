@@ -83,6 +83,7 @@ function getPriceFast(req,res){
 	console.log(alpha_url);
 
 	if (debug){
+		console.log(Date.now());
 		readFile(res,'/debug/' + symbol + "fast.json",echoJSON);
 	}else{
 		fetchData(https,res,alpha_url,parsePriceFast);

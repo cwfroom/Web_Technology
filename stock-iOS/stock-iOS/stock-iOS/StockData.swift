@@ -35,13 +35,20 @@ struct FavItem{
 }
 
 extension FavItem{
-    init?(symbol : String, price : Float, change : Float, changePercent : Float, volume : Int){
+    init(json : [String : Any]) {
+        
+        let symbol = json["symbol"] as! String;
+        let price = Float(json["price"] as! String)!;
+        let change = Float(json["change"] as! String)!;
+        let changePercent = Float((json["changePercent"] as! String).replacingOccurrences(of: "%", with: ""))!;
+        let volume = Int(json["volume"] as! String)!;
+        
         self.symbol = symbol;
         self.price = price;
         self.change = change;
         self.changePercent = changePercent;
         self.volume = volume;
-        self.changeStr = "";
+        self.changeStr = (json["change"] as! String) + "(" + (json["changePercent"] as! String) + ")";
     }
 }
 
@@ -96,8 +103,8 @@ class StockData{
     init() {
         currentSymbol = "AAPL";
         //For debugging
-        let A = FavItem(symbol: "A", changeStr: "(1)10%", price: 100, change: 1, changePercent: 0.1, volume: 100);
-        let B = FavItem(symbol: "B", changeStr: "(2)5%", price: 150, change: 2, changePercent: 0.05, volume: 50);
+        let A = FavItem(symbol: "AAPL", changeStr: "1(10%)", price: 100, change: 1, changePercent: 0.1, volume: 100);
+        let B = FavItem(symbol: "AMZN", changeStr: "2(5%)", price: 150, change: 2, changePercent: 0.05, volume: 50);
         FavList.append(A);
         FavList.append(B);
     }
@@ -107,8 +114,8 @@ class StockData{
         return serverAddr + "/price/" + currentSymbol;
     }
     
-    func getPriceFastURL() -> String{
-        return serverAddr + "/pricefast/" + currentSymbol;
+    func getPriceFastURL(symbol: String) -> String{
+        return serverAddr + "/pricefast/" + symbol;
     }
     
     func getPriceRawURL() -> String{
@@ -210,7 +217,47 @@ class StockData{
         FavList.remove(at: index);
     }
     
-    func updateFav(){
+    func removeFav(index : Int){
+        FavList.remove(at: index);
+    }
+    
+    func updateFav(ui : MainViewController){
+        let originalCount = FavList.count;
+        getPriceFast(index: 0, count: originalCount, ui: ui);
+    }
+    
+    
+    func getPriceFast(index : Int, count: Int, ui : MainViewController){
+        let requestURL = URL(string: self.getPriceFastURL(symbol: FavList[index].symbol));
+        
+        let task = URLSession.shared.dataTask(with: requestURL!) { data, response, error in
+            guard error == nil else {
+                print(error!)
+                return;
+            }
+            guard let data = data else {
+                print("Data is empty");
+                return;
+            }
+            
+            let json = try! JSONSerialization.jsonObject(with: data, options: [])
+            if let json = json as? [String : Any]{
+                let fav = FavItem(json:json);
+                self.FavList.append(fav);
+                
+                if (index < count - 1 ){
+                    self.getPriceFast(index: index + 1, count: count, ui: ui);
+                }else{
+                    self.FavList.removeFirst(count);
+                    ui.reloadData();
+                }
+            }
+
+            
+        }
+        task.resume();
+        
+        
         
     }
     

@@ -60,9 +60,15 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pFK-Vm-z4I" userLabel="RefreshButton">
                                 <rect key="frame" x="320" y="269" width="25" height="25"/>
                                 <state key="normal" image="RefreshIcon"/>
+                                <connections>
+                                    <action selector="refreshButtonTouch:" destination="BYZ-38-t0r" eventType="touchDown" id="nsM-S5-z7C"/>
+                                </connections>
                             </button>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="fmk-7S-2EW">
                                 <rect key="frame" x="248" y="264" width="51" height="31"/>
+                                <connections>
+                                    <action selector="refreshSwitchChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="yfR-AR-J8F"/>
+                                </connections>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sort By" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="w2u-dc-QJa" userLabel="SortByLabel">
                                 <rect key="frame" x="9" y="321" width="57" height="21"/>
@@ -90,7 +96,7 @@
                                     <constraint firstAttribute="height" constant="50" id="coD-rg-7F4"/>
                                 </constraints>
                             </pickerView>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="hqX-nT-rh4" userLabel="FavTable">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelectionDuringEditing="YES" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="hqX-nT-rh4" userLabel="FavTable">
                                 <rect key="frame" x="12" y="364" width="350" height="300"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
@@ -177,6 +183,8 @@
                     <connections>
                         <outlet property="favTable" destination="hqX-nT-rh4" id="s8A-Bk-kdK"/>
                         <outlet property="orderbyPicker" destination="Cdu-Uw-apz" id="gqD-CS-ujt"/>
+                        <outlet property="refreshButton" destination="pFK-Vm-z4I" id="AUS-Fl-Pte"/>
+                        <outlet property="refreshSwitch" destination="fmk-7S-2EW" id="Tal-Xb-rOo"/>
                         <outlet property="sortbyPicker" destination="7Mp-nU-CUv" id="YTF-d3-0SV"/>
                         <segue destination="JeH-jA-Ud2" kind="showDetail" identifier="showDetails" action="showViewController:sender:" id="iCf-VE-sDu"/>
                     </connections>
