@@ -10,6 +10,10 @@ import UIKit
 
 class DetailsTableCell: UITableViewCell {
 
+    @IBOutlet weak var promptLabel: UILabel!
+    @IBOutlet weak var valueLabel: UILabel!
+    @IBOutlet weak var arrowImage: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

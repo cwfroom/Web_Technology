@@ -40,13 +40,21 @@ class CurrentViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "currentTableCell")!;
+        let cell = tableView.dequeueReusableCell(withIdentifier: "currentTableCell") as! DetailsTableCell;
         
-        cell.textLabel?.text = self.prompts[indexPath.row];
-        cell.textLabel?.font = UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.bold);
+        cell.promptLabel.text = self.prompts[indexPath.row];
+        cell.valueLabel.text = data.currentDetail?.arr[indexPath.row];
         
-        cell.detailTextLabel?.text = data.currentDetail?.arr[indexPath.row];
-        cell.detailTextLabel?.textAlignment = NSTextAlignment.left;
+        if (indexPath.row == 2){
+            let change = data.currentDetail?.change;
+            if (change != ""){
+                if (Float(change!)! >= 0){
+                    cell.arrowImage.image = UIImage(named:"GreenArrow");
+                }else{
+                    cell.arrowImage.image = UIImage(named:"RedArrow");
+                }
+            }
+        }
         
         return cell;
     }
