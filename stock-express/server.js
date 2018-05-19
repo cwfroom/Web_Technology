@@ -8,8 +8,17 @@ var moment = require('moment-timezone');
 var app = express()
 
 
-var autoCompleteURL = 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/json?input=';
+var debug = false;
+var param = process.argv.slice(2);
+if (param == 'debug'){
+	debug = true;
+}else{
+	debug = false
+}
 
+const autoCompleteURL = 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/json?input=';
+const alpha_base_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=";
+const alpha_api_key = "QUEJMT41CEQTOAWN";
 
 app.use(function(res,res,next){
 	res.header("Access-Control-Allow-Origin","*");
@@ -19,36 +28,27 @@ app.use(function(res,res,next){
 });
 
 app.get('/', function (req, res) {
-  res.sendFile('stock.html', {root:__dirname});
-})
-
-app.get('/file/:filename',function (req,res){
-	
-})
-
+	if (debug){
+		res.sendFile('stock.html', {root:__dirname});
+	}else{
+		res.send("Invalid request");
+	}
+});
 
 app.get('/autocomplete/:symbol',autoComplete);
 app.get('/price/:symbol',getPrice);
 app.get('/priceraw/:symbol',getPriceRaw);
 app.get('/pricefast/:symbol',getPriceFast);
 app.get('/indicator/:symbol/:ind',getIndicator);
+app.get('/historical/:symbol',getHistorical);
 app.get('/news/:symbol',getNews);
 
-var debug = process.argv.slice(2);
-if (debug == 'debug'){
-	debug = true;
-}else{
-	debug = false
-}
-
-var port = 0;
+var port = 1571;
 
 if (debug){
 	console.log('Running debug mode');
-	port = 8000;
 }else{
 	console.log('Running production mode');
-	port = process.env.PORT || 3000
 }
 
 app.listen(port, function () {
@@ -57,7 +57,7 @@ app.listen(port, function () {
 
 
 function autoComplete(req,res){
-	var symbol = req.params.symbol;
+	const symbol = req.params.symbol;
 	if (debug){
 		console.log(symbol);
 	}
@@ -65,13 +65,12 @@ function autoComplete(req,res){
 }
 
 function getPriceRaw(req,res){
-	var symbol = req.params.symbol;
-	var alpha_base_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=";
-	var alpha_api_key = "QUEJMT41CEQTOAWN";
-	var alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
-	console.log(alpha_url);
-
+	const symbol = req.params.symbol;
+	
+	const alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
+	
 	if (debug){
+		console.log(alpha_url);
 		readFile(res, '/debug/' + symbol + '.json',echoJSON);
 	}else{
 		fetchData(https,res,alpha_url,echoJSON);
@@ -79,14 +78,12 @@ function getPriceRaw(req,res){
 }
 
 function getPriceFast(req,res){
-	var symbol = req.params.symbol;
-	var alpha_base_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=";
-	var alpha_api_key = "QUEJMT41CEQTOAWN";
-	var alpha_url =  alpha_base_url + symbol + "&apikey=" + alpha_api_key;
-	console.log(alpha_url);
+	const symbol = req.params.symbol;
+	const alpha_url =  alpha_base_url + symbol + "&apikey=" + alpha_api_key;
+	
 
 	if (debug){
-		console.log(Date.now());
+		console.log(alpha_url);
 		readFile(res,'/debug/' + symbol + "fast.json",echoJSON);
 	}else{
 		fetchData(https,res,alpha_url,parsePriceFast);
@@ -94,13 +91,12 @@ function getPriceFast(req,res){
 }
 
 function getPrice(req,res){
-	var symbol = req.params.symbol;
-	var alpha_base_url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=";
-	var alpha_api_key = "QUEJMT41CEQTOAWN";
-	var alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
-	console.log(alpha_url);
+	const symbol = req.params.symbol;
+	const alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
+	
 
 	if (debug){
+		console.log(alpha_url);
 		readFile(res, '/debug/' + symbol + '.json',parsePrice);
 	}else{
 		fetchData(https,res,alpha_url,parsePrice);
@@ -108,9 +104,9 @@ function getPrice(req,res){
 }
 
 function getIndicator(req,res){
-	var symbol = req.params.symbol;
-	var ind = req.params.ind;
-	var ind_url = "https://www.alphavantage.co/query?function=" + ind + "&symbol=" + symbol + "&interval=daily&time_period=10&series_type=close&apikey=QUEJMT41CEQTOAWN";
+	const symbol = req.params.symbol;
+	const ind = req.params.ind;
+	const ind_url = "https://www.alphavantage.co/query?function=" + ind + "&symbol=" + symbol + "&interval=daily&time_period=10&series_type=close&apikey=QUEJMT41CEQTOAWN";
 	
 	if (debug){
 		readFile(res, '/debug/SMA.json',parseIndicator);
@@ -122,8 +118,8 @@ function getIndicator(req,res){
 }
 
 function getNews(req,res){
-	var symbol = req.params.symbol;
-	var news_url = "https://seekingalpha.com/api/sa/combined/" + symbol + ".xml";
+	const symbol = req.params.symbol;
+	const news_url = "https://seekingalpha.com/api/sa/combined/" + symbol + ".xml";
 	if (debug){
 		console.log(news_url);
 		readFile(res,'/debug/AAPL.xml',parseNews);
@@ -131,6 +127,18 @@ function getNews(req,res){
 		fetchData(https,res,news_url,parseNews);
 	}
 	
+}
+
+function getHistorical(req,res){
+	const symbol = req.params.symbol;
+	const alpha_url =  alpha_base_url + symbol + "&outputsize=full&apikey=" + alpha_api_key;
+	
+	if (debug){
+		console.log(alpha_url);
+		readFile(res, '/debug/' + symbol + '.json',parseHistorical);
+	}else{
+		fetchData(https,res,alpha_url,parseHistorical);
+	}
 }
 
 function fetchData(protocal, res, url,callback){
@@ -383,6 +391,42 @@ function parseNews(res,xml){
 		res.send(parsed);
 	});
 	
+}
+
+function parseHistorical(res,json){
+	try{
+		json = JSON.parse(json);
+	}catch (e){
+		replyError(res);
+		return;
+	}
+
+	var result = {};
+	var series = {};
+
+	var meta_data = json["Meta Data"];
+	if (meta_data === undefined){
+		replyError(res);
+		return;
+	}
+
+	var current_symbol = meta_data["2. Symbol"];
+	var time_series = json["Time Series (Daily)"];
+	var date_keys = Object.keys(time_series);
+	var series = [];
+
+	for (var i=0;i<1000;i++){
+        var i_date = date_keys[i];
+        var i_price = parseFloat(time_series[i_date]["4. close"]);
+        var i_parsed_date = parseInt(moment(i_date).format("x"));
+		series.push([i_parsed_date,i_price]);
+	}
+	series.reverse();
+	result['info'] = {
+		'symbol': current_symbol
+	}
+	result['series'] = series;
+	res.send(result);
 }
 
 function echoJSON(res, data){

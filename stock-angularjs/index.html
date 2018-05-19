@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Stock Search</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--Style Sheets-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+  <link rel="stylesheet" href="style.css">
+  <!--Bootstrap-->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+  <!--AngularJS-->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-animate.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-aria.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-messages.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.4/angular-material.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular-sanitize.js"></script>
+  <!--HighCharts-->
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  
+  <script src="script.js"></script>
+
+</head>
+<body ng-app="stockSearch"  ng-controller="stockController as ctrl" ng-cloak>
+    
+
+<div class="container">
+  <div class="row round-corner bg-white">
+        <div class="col text-center prompt-text">Stock Market Search</div>
+        <div class="form-group" >
+              
+              <div class="col-sm-3 prompt-text">Enter Stocker Ticker Symbol:*</div>
+              <div class="col-sm-6">
+                 <form ng-submit = "$event.preventDefault()">
+
+                    <md-autocomplete
+                       ng-disabled = "ctrl.isDisabled"
+                       md-no-cache = "ctrl.noCache"
+                       md-selected-item = "ctrl.selectedItem"
+                       md-search-text-change = "ctrl.searchTextChange(ctrl.searchText)"
+                       md-search-text = "ctrl.searchText"
+                       md-selected-item-change = "ctrl.selectedItemChange(item)"
+                       md-items = "item in ctrl.querySearch(ctrl.searchText)"
+                       md-item-text = "item.value"
+                       md-min-length = "1"
+                       placeholder = "eg. AAPL"
+                       >
+                       
+                       <md-item-template>
+                          <span md-highlight-text = "ctrl.searchText"
+                             md-highlight-flags = "^i">{{item.display}}</span>
+                       </md-item-template>
+                       
+                       <md-not-found>
+                        </md-not-found>
+                    </md-autocomplete>
+                  
+                 </form>             
+ 
+                 <div ng-show='ctrl.showWarning' class='warning-text'>Please enter a stock ticker symbol.</div>
+              </div>  
+              
+              <div class="col-sm-3">
+                    <button type="button" id="quote-button" class="btn btn-primary {{ctrl.quoteButtonEnabled}}"  ng-click="getQuote()"><span class="glyphicon glyphicon-search"></span> Get Quote</button>
+                    <button type="button" id="clear-button"  class="btn btn-raised btn-default" ng-click="clearText()"><span class="glyphicon glyphicon-refresh"></span> Clear</button>
+              </div>       
+        </div> 
+  </div>
+
+  <hr>
+
+  <div class='row round-corner bg-white'>
+            <div class='panel panel-default panel-margin slide-right' id='list-panel' ng-show="!ctrl.showDetails">
+                <div class='panel-heading'>
+                  <span class='prompt-text'>Favorite List</span>
+                  <span class='align-right'>
+                    <span class='hidden-xs'>Automatic Refresh:</span>
+                    <label ng-click="toggleAutoRefresh()"><input type="checkbox" data-toggle="toggle" data-size="small"></label>
+                    <button type="button" id="refresh-button" class="btn btn-default btn-sm" ng-click="refreshFavList()">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm  {{ctrl.rightNavEnabled}}" ng-click="gotoDetails()">
+                        <span class="glyphicon glyphicon glyphicon-menu-right"></span>
+                    </button>
+                  </span>
+
+                </div>
+                <div class='panel-body'>
+                  <div class="col-sm-3">
+                      <span class='prompt-text little-space'>Sort by</span>
+                      <button type="button" class="btn btn-default dropdown-toggle sort-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ctrl.sortbyDisplay}} <span class="caret"></span></button>
+                      <ul class="dropdown-menu">
+                        <li><a ng-click='changeSortBy("Default","Default")'>Default</a></li>
+                        <li><a ng-click='changeSortBy("Symbol","symbol")'>Symbol</a></li>
+                        <li><a ng-click='changeSortBy("Price","price")'>Price</a></li>
+                        <li><a ng-click='changeSortBy("Change","change")'>Change</a></li>
+                        <li><a ng-click='changeSortBy("Change Percent","changePercent")'>Change Percent</a></li>
+                        <li><a ng-click='changeSortBy("Volume","volume")'>Volume</a></li>
+                    </ul>
+                      </div>
+                  <div class="col-sm-3">
+                        <span class='prompt-text little-space'>Order by</span>
+                        <button type="button" class="btn btn-default dropdown-toggle sort-button {{ctrl.orderbyEnabled}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ctrl.orderby}} <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                          <li><a ng-click='changeOrderBy("Ascending")'>Ascending</a></li>
+                          <li><a ng-click='changeOrderBy("Descending")'>Descending</a></li>
+                      </ul>
+                        
+                  </div>
+
+                  <table class="table table-striped" class="col-sm-12">
+                    <thead>
+                      <tr>
+                        <th>Symbol</th>
+                        <th>Stock Price</th>
+                        <th>Change (Change Percent)</th>
+                        <th>Volume</th>
+                        <th> </th>
+                      </tr>
+                      <tr ng-repeat="item in ctrl.favList">
+                        <td><a ng-click="quoteFav(item.symbol)">{{item["symbol"]}}</a></td>
+                        <td>{{item["data"]["price"]}}</td>
+                        <td ng-bind-html=item["data"]["changeStr"]></td>
+                        <td>{{item["data"]["volume"]}}</td>
+                        <td>
+                            <button type="button" class="btn btn-default btn-sm" ng-click="removeFav($index)">
+                                <span class="glyphicon glyphicon-trash"></span> 
+                            </button>
+                        </td>
+                      </tr>
+                    </thead>
+                  </table>
+
+                </div>
+              
+            </div>
+
+            <div class='panel panel-default panel-margin slide-left' id='details-panel' ng-show="ctrl.showDetails">
+              <div class='panel-heading'>
+                <div class='align-left'>
+                    <button type="button" class="btn btn-default btn-sm" ng-click="gotoList()">
+                        <span class="glyphicon glyphicon-menu-left"></span>
+                    </button>
+                  </div>
+                
+                <div class="prompt-text align-center">Stock Details</div>
+              </div>
+              <div class='panel-body'>
+                  <ul class="nav nav-pills">
+                      <li role="presentation" class="{{ctrl.detailsNav[0]}}"><a ng-click="switchCurrentStock()"><span class="glyphicon glyphicon-dashboard"></span> <span class="hidden-xs">Current Stock</span> <span class="hidden-sm hidden-md hidden-lg">Stock</span></a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[1]}}"><a ng-click="switchHistoricalChart()"><span class="glyphicon glyphicon-stats"></span> <span class="hidden-xs">Historical Charts</span> <span class="hidden-sm hidden-md hidden-lg">Charts</span></a></li>
+                      <li role="presentation" class="{{ctrl.detailsNav[2]}}"><a ng-click="switchNews()"><span class="glyphicon glyphicon-link"></span><span class="hidden-xs">News Feed</span> <span class="hidden-sm hidden-md hidden-lg">News</span></a></li>
+                  </ul>
+
+                  <hr>
+                  
+                    <div id="currentDetails" ng-show="ctrl.detailsDiv[0]">
+                      <div class="col-sm-6">
+                        <span class="prompt-text">Stock Details</span>
+                        <span class="align-right">
+                            <button type="button" id="favBubutton" class="btn btn-default btn-sm {{ctrl.favButtonEnabled}}" ng-click="addFav()">
+                                <span class="glyphicon {{ctrl.favButtonStyle}}"></span>
+                            </button>
+
+                        </span>
+                        <br>
+
+                    <div class="progress-container" ng-show="ctrl.showBar" >
+                            <div class="progress">
+                                    <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                    aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                            </div>
+                            </div>    
+                    </div>   
+                    
+                    
+                      <table class="table table-striped" ng-show="!ctrl.showBar">
+                        <tr>
+                          <td class="prompt-text">Stock Ticker Symbol</td>
+                          <td>{{ctrl.currentSymbol}}</td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Last Price</td>
+                            <td>{{ctrl.today_close}}</td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Change (Change Percent)</td>
+                            <td ng-bind-html="ctrl.changeStr"></td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Timestamp</td>
+                            <td>{{ctrl.timestamp}}</td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Open</td>
+                            <td>{{ctrl.today_open}}</td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Previous Close</td>
+                            <td>{{ctrl.yesterday_close}}</td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Day's Range</td>
+                            <td>{{ctrl.range}}</td>
+                        </tr>
+                        <tr>
+                            <td class="prompt-text">Volume</td>
+                            <td>{{ctrl.volume}}</td>
+                        </tr>
+
+                      </table>
+
+                    </div>
+                    
+
+                      <div class="col-sm-6">
+                          <ul class="nav nav-tabs">
+                              <li role="presentation" class="{{ctrl.chartsNav[0]}}"><a ng-click="drawPrice()">Price</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[1]}}"><a ng-click='drawIndicator("SMA",1,1)'>SMA</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[2]}}"><a ng-click='drawIndicator("EMA",1,2)'>EMA</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[3]}}"><a ng-click='drawIndicator("STOCH",2,3)'>STOCH</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[4]}}"><a ng-click='drawIndicator("RSI",1,4)'>RSI</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[5]}}"><a ng-click='drawIndicator("ADX",1,5)'>ADX</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[6]}}"><a ng-click='drawIndicator("CCI",1,6)'>CCI</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[7]}}"><a ng-click='drawIndicator("BBANDS",3,7)'>BBANDS</a></li>
+                              <li role="presentation" class="{{ctrl.chartsNav[8]}}"><a ng-click='drawIndicator("MACD",3,8)'>MACD</a></li>
+                          </ul>
+
+                          <div class="progress-container"ng-show="ctrl.showBar" >
+                                <div class="progress">
+                                        <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                        aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                                </div>
+                                </div>    
+                        </div>   
+
+                          <div id="chart-container" ng-show="!ctrl.showBar"></div>
+                      </div>
+                    </div>
+
+                    <div id="historical-container" class="col-sm-12" ng-show="ctrl.detailsDiv[1]">
+                            <div class="progress-container"ng-show="ctrl.showBar" >
+                                    <div class="progress">
+                                            <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                                    </div>
+                                    </div>    
+                            </div>   
+                            <div id="historical-chart-container" ng-show="!ctrl.showBar"></div>
+                    </div>
+                    
+
+                    <div id="news-container" ng-show="ctrl.detailsDiv[2]">
+                        <div class="progress-container" ng-show="ctrl.showBar" >
+                                <div class="progress">
+                                        <div class="progress progress-bar progress-bar-striped active " role="progressbar"
+                                        aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width:50%" >
+                                </div>
+                                </div>    
+                        </div>   
+
+                        <div class="well" ng-repeat="news in ctrl.newsData" ng-show="!ctrl.showBar">
+                            <div class="news-title"><a href={{news["link"]}} target="_blank">{{news["title"]}}</a></div><br>
+                            <div class="prompt-text">Author: {{news["author"]}}</div><br>
+                            <div class="prompt-text">Date: {{news["date"]}}</div>
+                        </div>
+                    </div>
+              </div>
+            </div>
+  </div>
+
+
+  </div>
+    
+</body>
+</html>

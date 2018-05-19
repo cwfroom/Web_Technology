@@ -1,0 +1,89 @@
+body{
+    background-image : url("images/background.png");
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  }
+
+  .prompt-text{
+    font-weight: bold;
+  }
+  .round-corner{
+    border-radius: 5px;
+    background-color: #FFF;
+    margin: 20px 0 20px 0;
+    padding: 20px 0 30px 0;
+    overflow: hidden;
+  }
+  .form-control {
+    display:inline-block;
+  }
+
+  .warning-text {
+    color: #F00;
+  }
+  
+  .panel-margin{
+    margin: 0 20px 0 20px;
+  }
+
+  .align-left{
+    float: left;
+  }
+
+  .align-right{
+    float: right;
+  }
+
+  .align-center{
+    margin: auto;
+    text-align: center;
+  }
+
+  .inline{
+    display: inline-block;
+  }
+  
+  .blue-anchor{
+      color: #0000ff;
+      text-decoration: none;
+  }
+
+  .news-title{
+      color :darkmagenta;
+      font-size: 16px;
+      font-weight: bold;
+  }
+
+  .yellow-star{
+      color: gold;
+  }
+
+  .progress-container{
+      margin: 100px 0 100px 0;
+  }
+
+  .little-space{
+      margin-right: 20px;
+  }
+
+  .sort-button{
+      width: 150px;
+  }
+
+  .slide-right.ng-hide-remove {
+      transform:translateX(100%);
+      transition: all 0.5s ease;
+  }
+
+  .slide-right.ng-hide-remove.ng-hide-remove-active {
+      transform: translateX(0);
+  }
+
+  .slide-left.ng-hide-remove {
+      transform:translateX(-100%);
+      transition: all 0.5s ease;
+  }
+
+  .slide-left.ng-hide-remove.ng-hide-remove-active {
+      transform: translateX(0);
+  }
+  
